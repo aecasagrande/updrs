@@ -3,1193 +3,698 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MDS-UPDRS Part III · Motor Examination</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=DM+Mono:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<title>MDS-UPDRS Part III</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 :root {
-  --navy: #0f172a;
-  --navy-2: #1e293b;
-  --navy-3: #334155;
-  --slate: #475569;
-  --muted: #94a3b8;
-  --border: #e2e8f0;
-  --bg: #f8fafc;
-  --white: #ffffff;
-  --blue: #2563eb;
-  --blue-light: #dbeafe;
-  --blue-mid: #93c5fd;
-  --green: #16a34a;
-  --green-light: #dcfce7;
-  --amber: #d97706;
-  --amber-light: #fef3c7;
-  --red: #dc2626;
-  --red-light: #fee2e2;
-  --purple: #7c3aed;
-  --purple-light: #ede9fe;
-  --teal: #0d9488;
-  --teal-light: #ccfbf1;
+  --navy:#0f172a; --navy2:#1e293b; --navy3:#334155;
+  --slate:#475569; --muted:#94a3b8; --border:#e2e8f0; --bg:#f8fafc;
+  --blue:#2563eb; --blue-l:#dbeafe; --blue-d:#1d4ed8;
+  --green:#16a34a; --green-l:#dcfce7;
+  --amber:#d97706; --amber-l:#fef3c7;
+  --red:#dc2626; --red-l:#fee2e2;
+  --purple:#7c3aed; --purple-l:#ede9fe;
 }
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  font-family: 'DM Sans', sans-serif;
-  background: var(--bg);
-  color: var(--navy);
-  min-height: 100vh;
-}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--navy);height:100vh;overflow:hidden;display:flex;}
 
-/* ===== LAYOUT ===== */
-.app-shell { display: flex; height: 100vh; overflow: hidden; }
-.sidebar {
-  width: 280px; min-width: 280px;
-  background: var(--navy);
-  display: flex; flex-direction: column;
-  overflow: hidden;
-}
-.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-.topbar {
-  background: var(--white);
-  border-bottom: 1px solid var(--border);
-  padding: 14px 28px;
-  display: flex; align-items: center; justify-content: space-between;
-  flex-shrink: 0;
-}
-.content { flex: 1; overflow-y: auto; padding: 28px; }
+/* SIDEBAR */
+#sidebar{width:272px;min-width:272px;background:var(--navy);display:flex;flex-direction:column;height:100vh;overflow:hidden;}
+.sb-top{padding:20px 18px 14px;border-bottom:1px solid rgba(255,255,255,.08);}
+.sb-logo{font-family:'Playfair Display',serif;color:#fff;font-size:16px;font-weight:700;line-height:1.3;}
+.sb-sub{color:var(--muted);font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;margin-top:2px;}
+.sb-prog{padding:14px 18px;border-bottom:1px solid rgba(255,255,255,.08);}
+.sb-prog-lbl{color:var(--muted);font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;}
+.prog-track{background:rgba(255,255,255,.1);border-radius:99px;height:4px;margin-bottom:5px;}
+.prog-bar{background:linear-gradient(90deg,#3b82f6,#60a5fa);border-radius:99px;height:4px;transition:width .35s ease;width:0%;}
+.prog-count{color:rgba(255,255,255,.4);font-size:11px;font-family:'DM Mono',monospace;}
+.score-pill{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:10px 14px;margin-top:8px;display:flex;justify-content:space-between;align-items:center;}
+.score-pill-lbl{color:var(--muted);font-size:11px;}
+.score-pill-val{color:#fff;font-family:'DM Mono',monospace;font-size:22px;font-weight:500;}
+#nav{flex:1;overflow-y:auto;padding:6px 0;}
+#nav::-webkit-scrollbar{width:4px;}
+#nav::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:99px;}
+.nav-phase{padding:10px 18px 3px;color:rgba(255,255,255,.28);font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:7px 18px;cursor:pointer;border-left:3px solid transparent;transition:background .12s;}
+.nav-item:hover{background:rgba(255,255,255,.05);}
+.nav-item.active{background:rgba(59,130,246,.15);border-left-color:#3b82f6;}
+.nav-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.18);flex-shrink:0;}
+.nav-item.active .nav-dot{background:#3b82f6;}
+.nav-item.done .nav-dot{background:var(--green);}
+.nav-code{color:rgba(255,255,255,.28);font-size:10px;font-family:'DM Mono',monospace;}
+.nav-item.active .nav-code{color:#93c5fd;}
+.nav-name{color:rgba(255,255,255,.55);font-size:12px;}
+.nav-item.active .nav-name{color:#fff;font-weight:500;}
+.sb-meta{padding:12px 18px 16px;border-top:1px solid rgba(255,255,255,.08);overflow-y:auto;}
+.meta-lbl{display:block;color:var(--muted);font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;margin-bottom:3px;margin-top:8px;}
+.meta-inp{width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:6px 10px;color:#fff;font-size:12px;font-family:'DM Sans',sans-serif;outline:none;}
+.meta-inp:focus{border-color:rgba(99,155,255,.6);}
+.meta-inp[type="datetime-local"]{color-scheme:dark;cursor:pointer;}
+.meta-sel{width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:6px 10px;color:#fff;font-size:12px;font-family:'DM Sans',sans-serif;outline:none;cursor:pointer;}
+.meta-sel option{background:#1e293b;}
 
-/* ===== SIDEBAR ===== */
-.sidebar-header {
-  padding: 24px 20px 16px;
-  border-bottom: 1px solid rgba(255,255,255,0.08);
-}
-.sidebar-logo {
-  font-family: 'Playfair Display', serif;
-  color: var(--white);
-  font-size: 15px;
-  font-weight: 700;
-  line-height: 1.3;
-  margin-bottom: 4px;
-}
-.sidebar-sub { color: var(--muted); font-size: 11px; font-weight: 400; letter-spacing: 0.05em; text-transform: uppercase; }
+/* MAIN */
+#main{flex:1;display:flex;flex-direction:column;min-width:0;overflow:hidden;}
+#topbar{background:#fff;border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.top-left{display:flex;align-items:center;gap:10px;}
+.phase-badge{background:var(--blue-l);color:var(--blue);padding:4px 12px;border-radius:99px;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap;}
+.top-title{font-size:15px;font-weight:600;color:var(--navy);}
+.top-right{display:flex;gap:8px;}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:all .12s;}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--slate);}
+.btn-outline:hover{background:var(--bg);}
+.btn-green{background:var(--green);color:#fff;}
+.btn-green:hover{background:#15803d;}
+#content{flex:1;overflow-y:auto;padding:24px 28px;}
+#content::-webkit-scrollbar{width:5px;}
+#content::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:99px;}
 
-.sidebar-progress { padding: 16px 20px; border-bottom: 1px solid rgba(255,255,255,0.08); }
-.progress-label { color: var(--muted); font-size: 10px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; }
-.progress-bar-bg { background: rgba(255,255,255,0.1); border-radius: 99px; height: 4px; margin-bottom: 6px; }
-.progress-bar-fill { background: linear-gradient(90deg, #3b82f6, #60a5fa); border-radius: 99px; height: 4px; transition: width 0.4s ease; }
-.progress-text { color: rgba(255,255,255,0.5); font-size: 11px; font-family: 'DM Mono', monospace; }
-.total-score-pill {
-  background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 8px; padding: 10px 14px; margin-top: 8px;
-  display: flex; justify-content: space-between; align-items: center;
-}
-.total-score-label { color: var(--muted); font-size: 11px; font-weight: 500; }
-.total-score-val { color: var(--white); font-family: 'DM Mono', monospace; font-size: 20px; font-weight: 500; }
+/* ITEM CARD */
+.item-card{background:#fff;border:2px solid var(--border);border-radius:14px;margin-bottom:18px;overflow:hidden;}
+.item-card.bi-card{border-color:#c4b5fd;}
+.item-card.scored-card{border-color:var(--green);}
+.ic-head{display:flex;align-items:stretch;}
+.ic-code{background:var(--navy);color:#fff;padding:14px 16px;font-family:'DM Mono',monospace;font-size:15px;font-weight:500;display:flex;align-items:center;justify-content:center;min-width:68px;flex-shrink:0;}
+.ic-title{flex:1;padding:12px 16px;}
+.ic-name{font-size:15px;font-weight:600;color:var(--navy);}
+.ic-sub{font-size:12px;color:var(--muted);margin-top:2px;}
+.bi-tag{background:var(--purple-l);color:var(--purple);padding:2px 8px;border-radius:99px;font-size:10px;font-weight:700;display:inline-block;margin-top:4px;}
+.ic-chips{padding:12px 14px;border-left:1px solid var(--border);display:flex;flex-direction:column;justify-content:center;gap:5px;min-width:84px;flex-shrink:0;}
+.chip{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:3px 9px;font-family:'DM Mono',monospace;font-size:13px;color:var(--slate);text-align:center;}
+.chip.set{background:var(--green-l);border-color:var(--green);color:var(--green);font-weight:700;}
+.ic-body{padding:20px;}
 
-.nav-section { overflow-y: auto; flex: 1; padding: 8px 0; }
-.nav-phase-label {
-  padding: 10px 20px 4px;
-  color: rgba(255,255,255,0.3);
-  font-size: 9px;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-.nav-item {
-  display: flex; align-items: center; gap: 10px;
-  padding: 8px 20px;
-  cursor: pointer;
-  transition: all 0.15s;
-  border-left: 3px solid transparent;
-}
-.nav-item:hover { background: rgba(255,255,255,0.05); }
-.nav-item.active { background: rgba(59,130,246,0.15); border-left-color: #3b82f6; }
-.nav-item.completed .nav-dot { background: var(--green) !important; }
-.nav-dot {
-  width: 8px; height: 8px; border-radius: 50%;
-  background: rgba(255,255,255,0.2);
-  flex-shrink: 0; transition: background 0.2s;
-}
-.nav-item.active .nav-dot { background: #3b82f6; }
-.nav-item-text { color: rgba(255,255,255,0.6); font-size: 12px; line-height: 1.3; }
-.nav-item.active .nav-item-text { color: var(--white); font-weight: 500; }
-.nav-item-code { color: rgba(255,255,255,0.3); font-size: 10px; font-family: 'DM Mono', monospace; }
-.nav-item.active .nav-item-code { color: #93c5fd; }
+/* boxes */
+.say-box{background:#eff6ff;border:1px solid #bfdbfe;border-left:4px solid var(--blue);border-radius:8px;padding:12px 16px;margin-bottom:14px;}
+.say-lbl{font-size:10px;font-weight:700;color:var(--blue);letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;}
+.say-text{font-size:13px;color:#1e40af;font-style:italic;line-height:1.6;}
+.admin-box{background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:#92400e;line-height:1.55;}
 
-.sidebar-footer { padding: 14px 20px; border-top: 1px solid rgba(255,255,255,0.08); }
-.meta-field { margin-bottom: 8px; }
-.meta-field label { display: block; color: var(--muted); font-size: 10px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 4px; }
-.meta-input {
-  width: 100%; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 6px; padding: 6px 10px; color: var(--white); font-size: 12px;
-  font-family: 'DM Sans', sans-serif; outline: none; transition: border-color 0.2s;
-}
-.meta-input:focus { border-color: rgba(59,130,246,0.5); }
-.meta-select {
-  width: 100%; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 6px; padding: 6px 10px; color: var(--white); font-size: 12px;
-  font-family: 'DM Sans', sans-serif; outline: none; cursor: pointer;
-}
-.meta-select option { background: var(--navy-2); color: var(--white); }
+/* scoring */
+.sec-lbl{font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;margin-bottom:8px;}
+.lbl-l{color:var(--purple);} .lbl-r{color:#0369a1;} .lbl-s{color:var(--slate);}
+.bi-cols{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:14px;}
+.score-row{display:flex;border:1.5px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:14px;}
+.s-btn{flex:1;padding:10px 2px;text-align:center;cursor:pointer;background:var(--bg);border:none;border-right:1px solid var(--border);font-family:'DM Sans',sans-serif;transition:background .1s;}
+.s-btn:last-child{border-right:none;}
+.s-btn:hover{background:#dbeafe;}
+.s-n{font-size:20px;font-weight:700;font-family:'DM Mono',monospace;color:var(--navy3);}
+.s-l{font-size:9px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin-top:2px;}
+.s-btn.sel-0{background:#dcfce7;border-color:#86efac;} .s-btn.sel-0 .s-n,.s-btn.sel-0 .s-l{color:#16a34a;}
+.s-btn.sel-1{background:#fef9c3;border-color:#fde047;} .s-btn.sel-1 .s-n,.s-btn.sel-1 .s-l{color:#854d0e;}
+.s-btn.sel-2{background:#ffedd5;border-color:#fed7aa;} .s-btn.sel-2 .s-n,.s-btn.sel-2 .s-l{color:#c2410c;}
+.s-btn.sel-3{background:#fee2e2;border-color:#fca5a5;} .s-btn.sel-3 .s-n,.s-btn.sel-3 .s-l{color:#dc2626;}
+.s-btn.sel-4{background:#fecaca;border-color:#f87171;} .s-btn.sel-4 .s-n,.s-btn.sel-4 .s-l{color:#991b1b;}
 
-/* ===== TOPBAR ===== */
-.topbar-left { display: flex; align-items: center; gap: 16px; }
-.phase-badge {
-  background: var(--blue-light);
-  color: var(--blue);
-  padding: 4px 12px; border-radius: 99px;
-  font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase;
-}
-.item-title { font-size: 16px; font-weight: 600; color: var(--navy); }
-.topbar-right { display: flex; align-items: center; gap: 10px; }
-.btn {
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 500;
-  cursor: pointer; border: none; transition: all 0.15s; font-family: 'DM Sans', sans-serif;
-}
-.btn-outline {
-  background: transparent; border: 1px solid var(--border); color: var(--slate);
-}
-.btn-outline:hover { background: var(--bg); border-color: var(--muted); }
-.btn-primary { background: var(--blue); color: var(--white); }
-.btn-primary:hover { background: #1d4ed8; }
-.btn-green { background: var(--green); color: var(--white); }
-.btn-green:hover { background: #15803d; }
-.btn-sm { padding: 6px 12px; font-size: 12px; }
+/* anchors */
+.anc-toggle{background:none;border:none;color:var(--blue);font-size:11px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;padding:0;margin-bottom:8px;}
+.anc-table{width:100%;border-collapse:collapse;font-size:12px;border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:14px;}
+.anc-table th{background:var(--bg);padding:7px 12px;font-size:10px;font-weight:700;color:var(--slate);text-align:left;letter-spacing:.05em;text-transform:uppercase;border-bottom:1px solid var(--border);}
+.anc-table td{padding:8px 12px;border-bottom:1px solid var(--border);color:var(--slate);vertical-align:top;}
+.anc-table tr:last-child td{border-bottom:none;}
+.a-n{font-family:'DM Mono',monospace;font-weight:700;font-size:14px;}
+.a0{color:#16a34a;} .a1{color:#854d0e;} .a2{color:#c2410c;} .a3{color:#dc2626;} .a4{color:#991b1b;}
+.a-lbl{font-weight:700;font-size:12px;color:var(--navy3);}
 
-/* ===== CONTENT CARDS ===== */
-.card { background: var(--white); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 20px; overflow: hidden; }
-.card-header {
-  padding: 16px 20px;
-  border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; justify-content: space-between;
-}
-.card-title { font-size: 13px; font-weight: 600; color: var(--navy-3); letter-spacing: 0.02em; text-transform: uppercase; }
-.card-body { padding: 20px; }
+.note-inp{width:100%;border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:12px;font-family:'DM Sans',sans-serif;color:var(--navy);outline:none;resize:none;background:#fff;}
+.note-inp:focus{border-color:var(--blue);}
+.nav-btns{display:flex;justify-content:space-between;margin-top:4px;gap:12px;}
+.nav-btn{flex:1;padding:10px 16px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:all .12s;}
+.nav-btn-p{background:var(--bg);border:1.5px solid var(--border);color:var(--slate);}
+.nav-btn-p:hover{background:#e2e8f0;}
+.nav-btn-n{background:var(--blue);color:#fff;}
+.nav-btn-n:hover{background:var(--blue-d);}
 
-/* ===== ITEM CARD ===== */
-.item-card {
-  background: var(--white); border: 2px solid var(--border);
-  border-radius: 14px; margin-bottom: 24px; overflow: hidden;
-  transition: border-color 0.2s;
-}
-.item-card.scored { border-color: var(--green); }
-.item-card.bilateral { border-color: #a855f7; }
-.item-card.bilateral.scored { border-color: var(--green); }
+/* WELCOME */
+.welcome{max-width:660px;margin:0 auto;}
+.hero{background:linear-gradient(135deg,#0f172a,#1e3a5f);border-radius:16px;padding:36px;margin-bottom:18px;color:#fff;}
+.hero-eye{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#93c5fd;margin-bottom:10px;}
+.hero-h{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;line-height:1.2;margin-bottom:10px;}
+.hero-p{color:#cbd5e1;font-size:13px;line-height:1.7;}
+.scale-strip{display:flex;gap:6px;margin-top:18px;}
+.sc-item{flex:1;background:rgba(255,255,255,.08);border-radius:8px;padding:9px 4px;text-align:center;}
+.sc-n{font-size:19px;font-weight:700;font-family:'DM Mono',monospace;}
+.sc-l{font-size:9px;color:rgba(255,255,255,.45);margin-top:1px;text-transform:uppercase;}
+.opening-box{background:#eff6ff;border:1px solid #bfdbfe;border-left:4px solid var(--blue);border-radius:10px;padding:14px 18px;margin-bottom:18px;}
+.opening-lbl{font-size:10px;font-weight:700;color:var(--blue);letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px;}
+.opening-txt{font-size:13px;color:#1e40af;font-style:italic;line-height:1.6;}
+.phase-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px;}
+.ph-card{background:#fff;border:1px solid var(--border);border-radius:10px;padding:13px 15px;display:flex;align-items:flex-start;gap:11px;}
+.ph-num{background:var(--navy);color:#fff;border-radius:7px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;}
+.ph-title{font-size:13px;font-weight:600;color:var(--navy);}
+.ph-sub{font-size:11px;color:var(--muted);margin-top:2px;}
+.start-btn{width:100%;padding:14px;background:var(--blue);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.start-btn:hover{background:var(--blue-d);}
 
-.item-header {
-  display: flex; align-items: stretch; gap: 0;
-  border-bottom: 1px solid var(--border);
-}
-.item-code-box {
-  background: var(--navy); color: var(--white);
-  padding: 14px 16px;
-  font-family: 'DM Mono', monospace; font-size: 15px; font-weight: 500;
-  display: flex; align-items: center; min-width: 70px; justify-content: center;
-}
-.item-title-area { flex: 1; padding: 12px 16px; }
-.item-name { font-size: 15px; font-weight: 600; color: var(--navy); }
-.item-subtitle { font-size: 12px; color: var(--muted); margin-top: 2px; }
-.bilateral-tag {
-  background: var(--purple-light); color: var(--purple);
-  padding: 3px 8px; border-radius: 99px; font-size: 10px; font-weight: 600;
-  margin-top: 4px; display: inline-block; letter-spacing: 0.04em;
-}
-.item-score-preview {
-  padding: 12px 16px;
-  display: flex; flex-direction: column; align-items: flex-end; justify-content: center; gap: 4px;
-  border-left: 1px solid var(--border);
-  min-width: 90px;
-}
-.score-chip {
-  background: var(--bg); border: 1px solid var(--border);
-  border-radius: 6px; padding: 3px 8px;
-  font-family: 'DM Mono', monospace; font-size: 13px; color: var(--slate);
-}
-.score-chip.set { background: var(--green-light); border-color: var(--green); color: var(--green); font-weight: 600; }
+/* SUMMARY */
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:11px;margin-bottom:18px;}
+.stat-card{background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px;}
+.stat-lbl{font-size:11px;color:var(--muted);font-weight:500;margin-bottom:2px;}
+.stat-val{font-size:24px;font-family:'DM Mono',monospace;font-weight:500;color:var(--navy);}
+.stat-sub{font-size:11px;color:var(--slate);margin-top:2px;}
+.rev-card{background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+.rev-head{padding:13px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.rev-title{font-size:12px;font-weight:700;color:var(--navy3);letter-spacing:.04em;text-transform:uppercase;}
+.rev-scroll{overflow-x:auto;}
+.rev-tbl{width:100%;border-collapse:collapse;font-size:13px;}
+.rev-tbl th{background:var(--bg);padding:9px 13px;font-size:10px;font-weight:700;color:var(--slate);text-align:left;letter-spacing:.05em;text-transform:uppercase;border-bottom:2px solid var(--border);}
+.rev-tbl td{padding:9px 13px;border-bottom:1px solid var(--border);vertical-align:middle;}
+.rev-tbl tr:last-child td{border-bottom:none;}
+.rev-tbl tr:hover td{background:var(--bg);}
+.tot-row td{background:var(--navy)!important;color:#fff!important;font-weight:700!important;}
+.stag{display:inline-block;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:700;font-family:'DM Mono',monospace;}
+.st0{background:var(--green-l);color:var(--green);} .st1{background:var(--amber-l);color:var(--amber);}
+.st2{background:#ffedd5;color:#c2410c;} .st3{background:var(--red-l);color:var(--red);}
+.st4{background:#fecaca;color:#991b1b;} .stx{background:var(--bg);color:var(--muted);}
+.ed{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:4px 7px;font-family:'DM Mono',monospace;font-size:13px;width:52px;text-align:center;outline:none;}
+.ed:focus{border-color:var(--blue);background:#fff;}
 
-.item-body { padding: 20px; }
-
-/* Say instruction */
-.say-box {
-  background: #eff6ff; border: 1px solid #bfdbfe; border-left: 4px solid var(--blue);
-  border-radius: 8px; padding: 12px 16px; margin-bottom: 16px;
-}
-.say-label { font-size: 10px; font-weight: 700; color: var(--blue); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 4px; }
-.say-text { font-size: 13px; color: #1e40af; font-style: italic; line-height: 1.5; }
-
-/* Admin note */
-.admin-note {
-  background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px;
-  padding: 10px 14px; margin-bottom: 16px;
-  font-size: 12px; color: #92400e; line-height: 1.5;
-  display: flex; gap: 8px; align-items: flex-start;
-}
-.admin-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
-
-/* ===== SCORING ===== */
-.scoring-grid { display: flex; gap: 0; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
-.score-btn {
-  flex: 1; padding: 10px 4px; text-align: center; cursor: pointer;
-  border: none; background: var(--bg);
-  transition: all 0.15s; border-right: 1px solid var(--border);
-  font-family: 'DM Sans', sans-serif;
-}
-.score-btn:last-child { border-right: none; }
-.score-btn:hover { background: var(--blue-light); }
-.score-btn .s-num { font-size: 18px; font-weight: 700; font-family: 'DM Mono', monospace; color: var(--navy-3); }
-.score-btn .s-lbl { font-size: 9px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin-top: 2px; }
-.score-btn.selected-0 { background: #dcfce7; border-color: #86efac; }
-.score-btn.selected-0 .s-num { color: var(--green); }
-.score-btn.selected-0 .s-lbl { color: var(--green); }
-.score-btn.selected-1 { background: #fef3c7; border-color: #fde68a; }
-.score-btn.selected-1 .s-num { color: #92400e; }
-.score-btn.selected-1 .s-lbl { color: #92400e; }
-.score-btn.selected-2 { background: #ffedd5; border-color: #fed7aa; }
-.score-btn.selected-2 .s-num { color: #c2410c; }
-.score-btn.selected-2 .s-lbl { color: #c2410c; }
-.score-btn.selected-3 { background: #fee2e2; border-color: #fca5a5; }
-.score-btn.selected-3 .s-num { color: var(--red); }
-.score-btn.selected-3 .s-lbl { color: var(--red); }
-.score-btn.selected-4 { background: #fecaca; border-color: #f87171; }
-.score-btn.selected-4 .s-num { color: #991b1b; }
-.score-btn.selected-4 .s-lbl { color: #991b1b; }
-
-.bilateral-scoring { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 8px; }
-.side-label { font-size: 11px; font-weight: 600; color: var(--slate); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 8px; }
-.side-label.left { color: #7c3aed; }
-.side-label.right { color: #0369a1; }
-
-/* Grading anchors */
-.anchors-toggle { font-size: 11px; color: var(--blue); cursor: pointer; text-decoration: none; margin-top: 10px; display: inline-block; font-weight: 500; }
-.anchors-table { margin-top: 10px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; display: none; }
-.anchors-table.open { display: table; width: 100%; }
-.anchors-table th { background: var(--bg); padding: 8px 12px; font-size: 10px; font-weight: 600; color: var(--slate); text-align: left; letter-spacing: 0.05em; text-transform: uppercase; border-bottom: 1px solid var(--border); }
-.anchors-table td { padding: 8px 12px; font-size: 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
-.anchors-table tr:last-child td { border-bottom: none; }
-.anchor-score { font-family: 'DM Mono', monospace; font-weight: 600; font-size: 13px; }
-.anchor-0 { color: var(--green); } .anchor-1 { color: #92400e; } .anchor-2 { color: #c2410c; } .anchor-3 { color: var(--red); } .anchor-4 { color: #991b1b; }
-
-.notes-row { margin-top: 14px; }
-.notes-input {
-  width: 100%; border: 1px solid var(--border); border-radius: 8px;
-  padding: 8px 12px; font-size: 12px; font-family: 'DM Sans', sans-serif;
-  color: var(--navy); outline: none; resize: none; background: var(--white);
-  transition: border-color 0.2s;
-}
-.notes-input:focus { border-color: var(--blue); }
-
-/* ===== NAV BUTTONS ===== */
-.nav-btns { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; }
-
-/* ===== SUMMARY VIEW ===== */
-.summary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin-bottom: 20px; }
-.summary-card {
-  background: var(--white); border: 1px solid var(--border); border-radius: 10px; padding: 14px;
-}
-.summary-card-label { font-size: 11px; color: var(--muted); font-weight: 500; margin-bottom: 2px; }
-.summary-card-val { font-size: 28px; font-family: 'DM Mono', monospace; font-weight: 500; color: var(--navy); }
-.summary-card-sub { font-size: 11px; color: var(--slate); margin-top: 2px; }
-
-.review-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-.review-table th { background: var(--bg); padding: 10px 14px; font-size: 11px; font-weight: 600; color: var(--slate); text-align: left; letter-spacing: 0.04em; text-transform: uppercase; border-bottom: 2px solid var(--border); }
-.review-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); vertical-align: middle; }
-.review-table tr:last-child td { border-bottom: none; }
-.review-table tr:hover td { background: var(--bg); }
-.editable-score {
-  background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
-  padding: 4px 8px; font-family: 'DM Mono', monospace; font-size: 13px;
-  width: 56px; text-align: center; outline: none;
-  font-family: 'DM Sans', sans-serif; color: var(--navy);
-  transition: border-color 0.2s;
-}
-.editable-score:focus { border-color: var(--blue); background: var(--white); }
-.score-tag {
-  display: inline-block; padding: 3px 8px; border-radius: 99px;
-  font-size: 11px; font-weight: 600; font-family: 'DM Mono', monospace;
-}
-.score-tag-0 { background: var(--green-light); color: var(--green); }
-.score-tag-1 { background: var(--amber-light); color: var(--amber); }
-.score-tag-2 { background: #ffedd5; color: #c2410c; }
-.score-tag-3 { background: var(--red-light); color: var(--red); }
-.score-tag-4 { background: #fecaca; color: #991b1b; }
-.score-tag-x { background: var(--bg); color: var(--muted); }
-
-/* ===== WELCOME SCREEN ===== */
-.welcome { max-width: 680px; margin: 0 auto; }
-.welcome-hero {
-  background: linear-gradient(135deg, var(--navy) 0%, #1e3a5f 100%);
-  border-radius: 16px; padding: 40px; margin-bottom: 24px; color: var(--white);
-}
-.welcome-eyebrow { font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: #93c5fd; margin-bottom: 12px; }
-.welcome-title { font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 700; line-height: 1.2; margin-bottom: 12px; }
-.welcome-desc { color: #cbd5e1; font-size: 14px; line-height: 1.7; }
-.welcome-scale {
-  display: flex; gap: 8px; margin-top: 24px;
-}
-.scale-item {
-  flex: 1; background: rgba(255,255,255,0.08); border-radius: 8px; padding: 10px 8px; text-align: center;
-}
-.scale-num { font-size: 20px; font-weight: 700; font-family: 'DM Mono', monospace; }
-.scale-lbl { font-size: 10px; color: rgba(255,255,255,0.55); margin-top: 2px; }
-.phase-overview { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
-.phase-card {
-  background: var(--white); border: 1px solid var(--border); border-radius: 10px;
-  padding: 14px 16px; display: flex; align-items: flex-start; gap: 12px;
-}
-.phase-num-box {
-  background: var(--navy); color: var(--white); border-radius: 7px;
-  width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
-  font-size: 13px; font-weight: 700; flex-shrink: 0;
-}
-.phase-card-title { font-size: 13px; font-weight: 600; color: var(--navy); }
-.phase-card-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
-.opening-box {
-  background: #eff6ff; border: 1px solid #bfdbfe; border-left: 4px solid var(--blue);
-  border-radius: 10px; padding: 16px 18px; margin-bottom: 24px;
-}
-.opening-label { font-size: 10px; font-weight: 700; color: var(--blue); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 6px; }
-.opening-text { font-size: 13px; color: #1e40af; font-style: italic; line-height: 1.6; }
-
-/* Scrollbar */
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; }
-
-/* Responsive */
-@media (max-width: 768px) {
-  .sidebar { display: none; }
-  .bilateral-scoring { grid-template-columns: 1fr; }
-  .phase-overview { grid-template-columns: 1fr; }
-}
-
-.fade-in { animation: fadeIn 0.25s ease; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-
-.chip-on { background: var(--teal-light); color: var(--teal); border: 1px solid #5eead4; padding: 3px 10px; border-radius: 99px; font-size: 11px; font-weight: 600; }
-.chip-off { background: var(--amber-light); color: var(--amber); border: 1px solid #fde68a; padding: 3px 10px; border-radius: 99px; font-size: 11px; font-weight: 600; }
+.fade{animation:fa .2s ease;}
+@keyframes fa{from{opacity:0;transform:translateY(5px);}to{opacity:1;transform:none;}}
 </style>
 </head>
 <body>
 
-<div class="app-shell">
-  <!-- SIDEBAR -->
-  <aside class="sidebar">
-    <div class="sidebar-header">
-      <div class="sidebar-logo">MDS-UPDRS<br>Part III</div>
-      <div class="sidebar-sub">Motor Examination</div>
+<aside id="sidebar">
+  <div class="sb-top">
+    <div class="sb-logo">MDS-UPDRS<br>Part III</div>
+    <div class="sb-sub">Motor Examination</div>
+  </div>
+  <div class="sb-prog">
+    <div class="sb-prog-lbl">Progress</div>
+    <div class="prog-track"><div class="prog-bar" id="progBar"></div></div>
+    <div class="prog-count" id="progCount">0 / 18 scored</div>
+    <div class="score-pill">
+      <span class="score-pill-lbl">Total Score</span>
+      <span class="score-pill-val" id="sbTotal">—</span>
     </div>
-    <div class="sidebar-progress">
-      <div class="progress-label">Progress</div>
-      <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressBar" style="width:0%"></div></div>
-      <div class="progress-text" id="progressText">0 / 18 items scored</div>
-      <div class="total-score-pill">
-        <span class="total-score-label">Total Score</span>
-        <span class="total-score-val" id="sidebarTotal">—</span>
-      </div>
-    </div>
-    <nav class="nav-section" id="navSection"></nav>
-    <div class="sidebar-footer">
-      <div class="meta-field">
-        <label>Patient ID</label>
-        <input class="meta-input" id="metaPatient" placeholder="e.g. PD-2024-001">
-      </div>
-      <div class="meta-field">
-        <label>Examiner</label>
-        <input class="meta-input" id="metaExaminer" placeholder="Name">
-      </div>
-      <div class="meta-field">
-        <label>Medication Status</label>
-        <select class="meta-select" id="metaMeds">
-          <option value="">Select…</option>
-          <option value="ON">ON</option>
-          <option value="OFF">OFF</option>
-          <option value="Unknown">Unknown</option>
-        </select>
-      </div>
-    </div>
-  </aside>
+  </div>
+  <nav id="nav"></nav>
+  <div class="sb-meta">
+    <label class="meta-lbl">Patient ID</label>
+    <input class="meta-inp" id="mPatient" placeholder="e.g. PD-2024-001">
+    <label class="meta-lbl">Examiner</label>
+    <input class="meta-inp" id="mExaminer" placeholder="Name">
+    <label class="meta-lbl">Medication Status</label>
+    <select class="meta-sel" id="mMeds">
+      <option value="">Select…</option>
+      <option value="ON">ON</option>
+      <option value="OFF">OFF</option>
+      <option value="Unknown">Unknown</option>
+    </select>
+    <label class="meta-lbl">Last Dose Taken At</label>
+    <input class="meta-inp" id="mLastDose" type="datetime-local" title="Date and time patient last took Parkinson's medication">
+  </div>
+</aside>
 
-  <!-- MAIN -->
-  <main class="main">
-    <header class="topbar">
-      <div class="topbar-left">
-        <span class="phase-badge" id="topPhaseBadge">Welcome</span>
-        <span class="item-title" id="topItemTitle">MDS-UPDRS Part III Scorer</span>
-      </div>
-      <div class="topbar-right">
-        <button class="btn btn-outline btn-sm" onclick="showView('summary')" id="summaryBtn">📋 Review & Edit</button>
-        <button class="btn btn-green btn-sm" onclick="exportExcel()">⬇ Export Excel</button>
-      </div>
-    </header>
-    <div class="content" id="mainContent"></div>
-  </main>
-</div>
+<main id="main">
+  <header id="topbar">
+    <div class="top-left">
+      <span class="phase-badge" id="topBadge">Overview</span>
+      <span class="top-title" id="topTitle">MDS-UPDRS Part III Scorer</span>
+    </div>
+    <div class="top-right">
+      <button class="btn btn-outline" onclick="go('summary')">📋 Review &amp; Edit</button>
+      <button class="btn btn-green" onclick="exportExcel()">⬇ Export Excel</button>
+    </div>
+  </header>
+  <div id="content"></div>
+</main>
 
 <script>
-// ===== DATA MODEL =====
 const ITEMS = [
-  {
-    id: '3.1', phase: 1, phaseName: 'Observation & Speech',
-    name: 'Speech',
-    bilateral: false,
-    say: 'Can you tell me a little about why you are here today, or walk me through what you did this morning?',
-    admin: 'Engage in natural conversation first. Assess spontaneous speech throughout the encounter, not just this prompt. Listen for the full response.',
-    anchors: [
-      [0,'Normal','Normal volume, clarity and rhythm'],
-      [1,'Slight','Slightly low volume, slurred, or monotone; no difficulty being understood'],
-      [2,'Mild','Monotone or slurred speech; listener must concentrate; some words hard to understand'],
-      [3,'Moderate','Significantly difficult to understand; much of speech unintelligible'],
-      [4,'Severe','Mostly unintelligible or mute'],
-    ]
-  },
-  {
-    id: '3.2', phase: 1, phaseName: 'Observation & Speech',
-    name: 'Facial Expression',
-    bilateral: false,
-    say: 'Just look straight ahead at me for a moment with your face relaxed.',
-    admin: 'Observe throughout conversation AND at rest. Check blink rate and spontaneous smiling.',
-    anchors: [
-      [0,'Normal','Normal facial mobility, no mask-like face'],
-      [1,'Slight','Slight hypomimia; may just appear "serious"; possibly normal for age'],
-      [2,'Mild','Mild but definite hypomimia; decreased blink rate'],
-      [3,'Moderate','Marked hypomimia; mouth may be open at rest; intermittent smiling'],
-      [4,'Severe','Fixed, mask-like face; severe loss of expression; mouth open'],
-    ]
-  },
-  {
-    id: '3.3', phase: 2, phaseName: 'Rigidity',
-    name: 'Rigidity',
-    bilateral: true,
-    say: 'I am going to move your arms. Please let them go completely limp — like a rag doll. Try not to help me or resist.',
-    admin: '⚙ Test passively: neck (single score), both wrists, both elbows. If no rigidity, apply distraction task (tap other hand, count backwards) and document if activation was needed.',
-    anchors: [
-      [0,'Absent','No rigidity detected even with activation'],
-      [1,'Slight','Only detected with activation maneuver'],
-      [2,'Mild','Present without activation; full ROM easily achieved'],
-      [3,'Moderate','Prominent; full ROM achieved with effort'],
-      [4,'Severe','Cannot achieve full ROM'],
-    ],
-    neckNote: true
-  },
-  {
-    id: '3.4', phase: 3, phaseName: 'Motor Tasks',
-    name: 'Finger Tapping',
-    bilateral: true,
-    say: 'Watch me first. [Demonstrate] Now, with your RIGHT hand, tap your index finger to your thumb as big and as fast as you can — at least 10 times. Now your LEFT hand.',
-    admin: '⚙ Demonstrate before each side. Observe for 10 repetitions. Assess: speed, amplitude, rhythm, decrement (progressive decrease in size).',
-    anchors: [
-      [0,'Normal','No difficulty; normal speed and amplitude'],
-      [1,'Slight','Slight slowing or reduction in amplitude; no halting'],
-      [2,'Mild','Moderate difficulty; clear slowing/decrements; occasional arrests'],
-      [3,'Moderate','Significant difficulty; frequent arrests or prolonged hesitations'],
-      [4,'Severe','Barely able to perform; near absent movement'],
-    ]
-  },
-  {
-    id: '3.5', phase: 3, phaseName: 'Motor Tasks',
-    name: 'Hand Movements (Open/Close)',
-    bilateral: true,
-    say: 'Watch me first. [Demonstrate] Make a tight fist, then open your hand as wide as possible. Repeat as fast and as large as you can — at least 10 times. Now your other hand.',
-    admin: '⚙ Demonstrate first. Same scoring principles as finger tapping: amplitude matters as much as speed.',
-    anchors: [
-      [0,'Normal','No difficulty'],
-      [1,'Slight','Slight slowing or amplitude reduction'],
-      [2,'Mild','Moderate difficulty; occasional arrests or hesitations'],
-      [3,'Moderate','Significant difficulty; frequent arrests or prolonged pauses'],
-      [4,'Severe','Barely able to perform'],
-    ]
-  },
-  {
-    id: '3.6', phase: 3, phaseName: 'Motor Tasks',
-    name: 'Pronation-Supination',
-    bilateral: true,
-    say: 'Watch me first. [Demonstrate] Extend your arm in front of you. Turn your palm up, then palm down, as fast and as large as possible. Now the other arm.',
-    admin: '⚙ Arm should be extended horizontally. Observe amplitude of the full rotation arc.',
-    anchors: [
-      [0,'Normal','No difficulty'],
-      [1,'Slight','Slight slowing or amplitude reduction'],
-      [2,'Mild','Moderate difficulty; clear slowing or decrements'],
-      [3,'Moderate','Significant difficulty; frequent arrests'],
-      [4,'Severe','Barely able to perform'],
-    ]
-  },
-  {
-    id: '3.7', phase: 3, phaseName: 'Motor Tasks',
-    name: 'Toe Tapping',
-    bilateral: true,
-    say: 'Watch me first. [Demonstrate] Keep your heel on the floor and tap your toes up and down as high and as fast as you can — at least 10 times. Now the other foot.',
-    admin: '⚙ Heel must remain on the floor. Observe height of toe lift (amplitude) as well as speed.',
-    anchors: [
-      [0,'Normal','No difficulty'],
-      [1,'Slight','Slight slowing or amplitude reduction'],
-      [2,'Mild','Moderate difficulty; occasional arrests'],
-      [3,'Moderate','Significant difficulty; frequent arrests'],
-      [4,'Severe','Barely able to perform'],
-    ]
-  },
-  {
-    id: '3.8', phase: 3, phaseName: 'Motor Tasks',
-    name: 'Leg Agility (Heel Stomping)',
-    bilateral: true,
-    say: 'Watch me first. [Demonstrate] Lift your whole leg and stamp your heel on the ground as high and as fast as you can — at least 10 times. Now the other leg.',
-    admin: '⚙ Observe height of knee lift (amplitude) as well as speed. Compare symmetry between sides.',
-    anchors: [
-      [0,'Normal','No difficulty'],
-      [1,'Slight','Slight slowing or amplitude reduction'],
-      [2,'Mild','Moderate difficulty; occasional arrests'],
-      [3,'Moderate','Significant difficulty; frequent arrests'],
-      [4,'Severe','Barely able to perform'],
-    ]
-  },
-  {
-    id: '3.9', phase: 4, phaseName: 'Standing & Gait',
-    name: 'Arising from Chair',
-    bilateral: false,
-    say: 'Please cross your arms over your chest and try to stand up without using your arms to push off. If you truly cannot, you may use them.',
-    admin: '⚙ Use armless chair if available. Do not assist unless safety concern. Observe the entire movement arc.',
-    anchors: [
-      [0,'Normal','Stands in one smooth attempt without using arms'],
-      [1,'Slight','Slow; may need >1 attempt or leans forward slightly'],
-      [2,'Mild','Pushes up with arms from seat of chair'],
-      [3,'Moderate','Tends to fall back; multiple attempts; needs mild assistance'],
-      [4,'Severe','Unable to stand without substantial assistance'],
-    ]
-  },
-  {
-    id: '3.10', phase: 4, phaseName: 'Standing & Gait',
-    name: 'Gait',
-    bilateral: false,
-    say: 'Walk toward that point at the far end of the room at your normal pace, turn around, and walk back to me.',
-    admin: '⚙ Mark a clear 10–20 ft target. Walk alongside or slightly behind. Observe: stride length, arm swing (both sides separately), heel strike, shuffling, turns.',
-    anchors: [
-      [0,'Normal','No difficulties; normal stride and arm swing'],
-      [1,'Slight','Slight reduction in stride, arm swing, or some shuffling'],
-      [2,'Mild','Moderate impairment; mild shuffling or clearly reduced arm swing'],
-      [3,'Moderate','Significant impairment; requires assistive device; festination present'],
-      [4,'Severe','Unable to walk; falls with every step'],
-    ]
-  },
-  {
-    id: '3.11', phase: 4, phaseName: 'Standing & Gait',
-    name: 'Freezing of Gait',
-    bilateral: false,
-    say: 'While you are walking back to me, please make a full 360-degree turn in place, then continue back.',
-    admin: '⚙ Observe during gait test — especially at initiation, at the turn, and on arrival. If not observed spontaneously, provoke with the 360° turn and narrow doorways.',
-    anchors: [
-      [0,'Normal','No freezing observed at any point'],
-      [1,'Slight','Single brief hesitation ≤1 sec at start or turn'],
-      [2,'Mild','Occasional freezing episode(s) >1 sec; recovers without falling'],
-      [3,'Moderate','Frequent freezing; multiple episodes per walk'],
-      [4,'Severe','Falls due to freezing; nearly every step affected'],
-    ]
-  },
-  {
-    id: '3.13', phase: 4, phaseName: 'Standing & Gait',
-    name: 'Posture',
-    bilateral: false,
-    say: 'Stand naturally with your arms at your sides and look straight ahead for me.',
-    admin: '⚙ Assess while patient is standing naturally after gait. View from the side AND from behind. Look for stooping, Pisa syndrome (lateral lean), kyphosis.',
-    anchors: [
-      [0,'Normal','Upright, normal posture'],
-      [1,'Slight','Slight stooping; could be normal for age'],
-      [2,'Mild','Definite stooping, kyphosis, or lean to one side'],
-      [3,'Moderate','Severe stooping or marked lateral flexion (Pisa syndrome)'],
-      [4,'Severe','Fixed, severely abnormal posture'],
-    ]
-  },
-  {
-    id: '3.12', phase: 4, phaseName: 'Standing & Gait',
-    name: 'Postural Stability (Pull Test)',
-    bilateral: false,
-    say: 'I am going to stand behind you and give you a quick tug backward by your shoulders to test your balance. Try to stay on your feet — take as many steps as you need to catch yourself. I am right here behind you and will not let you fall.',
-    admin: '⚠ SAFETY: Stand directly behind patient with arms ready. Warn clearly. Must be prepared to catch. Repeat up to 3 times if ambiguous result.',
-    anchors: [
-      [0,'Normal','Recovers with 1–2 steps'],
-      [1,'Slight','Recovers with 3–5 steps but independently'],
-      [2,'Mild','>5 steps but recovers independently'],
-      [3,'Moderate','Tends to fall; no step attempt OR would fall if not caught'],
-      [4,'Severe','Very unstable; tends to fall spontaneously without pull'],
-    ]
-  },
-  {
-    id: '3.14', phase: 5, phaseName: 'Global Observation',
-    name: 'Global Spontaneity of Movement',
-    bilateral: false,
-    say: null,
-    admin: '⚙ Holistic score based on entire exam. Did the patient swing their arms while walking? Shift naturally in their chair? Use gestures during speech? Synthesizes slowness and poverty of movement globally.',
-    anchors: [
-      [0,'Normal','Normal spontaneous movement throughout'],
-      [1,'Slight','Slightly decreased spontaneity; subtle slowness'],
-      [2,'Mild','Mildly decreased; noticeable slowness and poverty of gesture'],
-      [3,'Moderate','Moderately decreased; significant slowness in all movement'],
-      [4,'Severe','Complete or near-complete lack of spontaneous movement'],
-    ]
-  },
-  {
-    id: '3.15', phase: 6, phaseName: 'Tremor',
-    name: 'Rest Tremor Amplitude',
-    bilateral: true,
-    say: 'Place your hands on your lap, close your eyes, and relax for a moment. Let your feet rest flat on the floor.',
-    admin: '⚙ Observe ≥10 seconds. Score face, both hands, both feet separately. A mental task (count backwards) can bring out latent rest tremor. Score each body part.',
-    anchors: [
-      [0,'Absent','No rest tremor at any body part'],
-      [1,'Slight','<1 cm amplitude'],
-      [2,'Mild','1–3 cm amplitude'],
-      [3,'Moderate','>3–10 cm amplitude'],
-      [4,'Severe','>10 cm amplitude'],
-    ]
-  },
-  {
-    id: '3.16', phase: 6, phaseName: 'Tremor',
-    name: 'Action/Postural Tremor',
-    bilateral: true,
-    say: '[POSTURAL] Hold your arms straight out in front of you, palms down, for about 10 seconds. [KINETIC] Now touch your nose with your index finger, then touch my finger. Keep going back and forth.',
-    admin: '⚙ Re-emergent tremor (appears after >10 sec delay in postural hold) = rest tremor → score under 3.15 instead.',
-    anchors: [
-      [0,'Absent','No action/postural tremor'],
-      [1,'Slight','<1 cm amplitude'],
-      [2,'Mild','1–3 cm amplitude'],
-      [3,'Moderate','>3–10 cm amplitude'],
-      [4,'Severe','>10 cm amplitude'],
-    ]
-  },
-  {
-    id: '3.17', phase: 6, phaseName: 'Tremor',
-    name: 'Rest Tremor Constancy',
-    bilateral: false,
-    say: null,
-    admin: '⚙ Score based on total observation time across the entire examination. Consider ALL body parts.',
-    anchors: [
-      [0,'Never','No rest tremor observed at any point'],
-      [1,'Occasional','Present ≤25% of observation time'],
-      [2,'Sometimes','Present 26–50% of observation time'],
-      [3,'Frequent','Present 51–75% of observation time'],
-      [4,'Constant','Present >75% of observation time'],
-    ]
-  },
-  {
-    id: '3.18', phase: 6, phaseName: 'Tremor',
-    name: 'Constancy of Rest Tremor',
-    bilateral: false,
-    say: null,
-    admin: '⚙ This item documents persistence of rest tremor across position changes and activities. Score only if tremor was observed at some point.',
-    anchors: [
-      [0,'Never','No rest tremor at any time'],
-      [1,'Occasional','Present ≤25% of exam'],
-      [2,'Sometimes','Present 26–50% of exam'],
-      [3,'Frequent','Present 51–75% of exam'],
-      [4,'Constant','Present >75% of exam'],
-    ]
-  },
+  {id:'3.1',phase:1,ph:'Observation & Speech',name:'Speech',bi:false,
+   say:'Can you tell me a little about why you are here today, or walk me through what you did this morning?',
+   admin:'Engage in natural conversation first. Assess volume, clarity, rhythm, and monotony throughout the encounter — not just for this prompt.',
+   anc:[[0,'Normal','Normal volume, clarity and rhythm'],[1,'Slight','Slightly low volume or monotone; no difficulty being understood'],[2,'Mild','Slurred or monotone; listener must concentrate; some words unclear'],[3,'Moderate','Significantly difficult to understand; much of speech unintelligible'],[4,'Severe','Mostly unintelligible or mute']]},
+
+  {id:'3.2',phase:1,ph:'Observation & Speech',name:'Facial Expression',bi:false,
+   say:'Just look straight ahead at me for a moment with your face relaxed.',
+   admin:'Observe throughout conversation AND at rest. Check blink rate and spontaneous smiling.',
+   anc:[[0,'Normal','Normal facial mobility; no mask-like features'],[1,'Slight','Slight hypomimia; may appear "serious" — possibly normal for age'],[2,'Mild','Definite hypomimia; decreased blink rate'],[3,'Moderate','Marked hypomimia; mouth may be open at rest'],[4,'Severe','Fixed mask-like face; severe loss of expression; mouth open']]},
+
+  {id:'3.3',phase:2,ph:'Rigidity',name:'Rigidity',bi:true,
+   say:'I am going to move your arms. Please let them go completely limp — like a rag doll. Try not to help me or resist.',
+   admin:'⚠ Test passively: neck (single score), both wrists, both elbows. If no rigidity detected, apply a distraction task (ask patient to tap the other hand or count backwards) to activate latent rigidity — document if activation was required.',
+   anc:[[0,'Absent','No rigidity detected, even with activation'],[1,'Slight','Only detected with activation maneuver'],[2,'Mild','Present without activation; full range of motion easily achieved'],[3,'Moderate','Prominent; full ROM achieved with effort'],[4,'Severe','Cannot achieve full ROM']]},
+
+  {id:'3.4',phase:3,ph:'Motor Tasks (Sitting)',name:'Finger Tapping',bi:true,
+   say:'Watch me first. [Demonstrate] Now, with your RIGHT hand, tap your index finger to your thumb as big and as fast as you can — at least 10 times. Now your LEFT hand.',
+   admin:'Always demonstrate before each side. Observe for ≥10 repetitions. Assess: speed, amplitude, rhythm, and decrement (progressive decrease in size or speed).',
+   anc:[[0,'Normal','No difficulty; normal speed and amplitude'],[1,'Slight','Slight slowing or amplitude reduction; no halting'],[2,'Mild','Moderate difficulty; clear slowing or decrements; occasional arrests'],[3,'Moderate','Significant difficulty; frequent arrests or prolonged hesitations'],[4,'Severe','Barely able to perform; near-absent movement']]},
+
+  {id:'3.5',phase:3,ph:'Motor Tasks (Sitting)',name:'Hand Movements',bi:true,
+   say:'Watch me first. [Demonstrate] Make a tight fist, then open your hand as wide as possible. Repeat as fast and as large as you can — at least 10 times. Now your other hand.',
+   admin:'Demonstrate first. Amplitude matters as much as speed — small but fast movements still score ≥ 2.',
+   anc:[[0,'Normal','No difficulty'],[1,'Slight','Slight slowing or amplitude reduction'],[2,'Mild','Moderate difficulty; occasional arrests or hesitations'],[3,'Moderate','Significant difficulty; frequent arrests or prolonged pauses'],[4,'Severe','Barely able to perform']]},
+
+  {id:'3.6',phase:3,ph:'Motor Tasks (Sitting)',name:'Pronation-Supination',bi:true,
+   say:'Watch me first. [Demonstrate] Extend your arm in front of you. Turn your palm up, then palm down, as fast and as large as possible. Now the other arm.',
+   admin:'Arm should be extended horizontally. Observe the full amplitude of the rotation arc on each side.',
+   anc:[[0,'Normal','No difficulty'],[1,'Slight','Slight slowing or amplitude reduction'],[2,'Mild','Moderate difficulty; clear slowing or decrements'],[3,'Moderate','Significant difficulty; frequent arrests'],[4,'Severe','Barely able to perform']]},
+
+  {id:'3.7',phase:3,ph:'Motor Tasks (Sitting)',name:'Toe Tapping',bi:true,
+   say:'Watch me first. [Demonstrate] Keep your heel on the floor and tap your toes up and down as high and as fast as you can — at least 10 times. Now the other foot.',
+   admin:'Heel must remain on the floor. Observe height of toe lift (amplitude) as well as speed.',
+   anc:[[0,'Normal','No difficulty'],[1,'Slight','Slight slowing or amplitude reduction'],[2,'Mild','Moderate difficulty; occasional arrests'],[3,'Moderate','Significant difficulty; frequent arrests'],[4,'Severe','Barely able to perform']]},
+
+  {id:'3.8',phase:3,ph:'Motor Tasks (Sitting)',name:'Leg Agility (Heel Stomping)',bi:true,
+   say:'Watch me first. [Demonstrate] Lift your whole leg and stamp your heel on the ground as high and as fast as you can — at least 10 times. Now the other leg.',
+   admin:'Observe height of knee lift (amplitude) as well as speed. Compare symmetry between sides.',
+   anc:[[0,'Normal','No difficulty'],[1,'Slight','Slight slowing or amplitude reduction'],[2,'Mild','Moderate difficulty; occasional arrests'],[3,'Moderate','Significant difficulty; frequent arrests'],[4,'Severe','Barely able to perform']]},
+
+  {id:'3.9',phase:4,ph:'Standing & Gait',name:'Arising from Chair',bi:false,
+   say:'Please cross your arms over your chest and try to stand up without using your arms to push off. If you truly cannot, you may use them.',
+   admin:'Use an armless chair if available. Do not assist unless there is a safety concern. Observe the entire movement arc.',
+   anc:[[0,'Normal','Stands in one smooth attempt without using arms'],[1,'Slight','Slow; may need >1 attempt or leans forward slightly'],[2,'Mild','Pushes up using arms from seat of chair'],[3,'Moderate','Tends to fall back; multiple attempts; needs mild assistance'],[4,'Severe','Unable to stand without substantial assistance']]},
+
+  {id:'3.10',phase:4,ph:'Standing & Gait',name:'Gait',bi:false,
+   say:'Walk toward that point at the far end of the room at your normal pace, turn around, and walk back to me.',
+   admin:'Mark a clear 10–20 ft target. Walk alongside or slightly behind. Observe: stride length, arm swing on both sides separately, heel strike, shuffling, and the quality of the turn.',
+   anc:[[0,'Normal','No difficulties; normal stride and arm swing'],[1,'Slight','Slight reduction in stride, arm swing, or some shuffling'],[2,'Mild','Moderate impairment; mild shuffling or clearly reduced arm swing'],[3,'Moderate','Significant impairment; requires assistive device; festination present'],[4,'Severe','Unable to walk; falls with every step']]},
+
+  {id:'3.11',phase:4,ph:'Standing & Gait',name:'Freezing of Gait',bi:false,
+   say:'While you are walking back to me, please make a full 360-degree turn in place, then continue back.',
+   admin:'Observe during gait test — especially at initiation, at the turn, and on arrival. If not seen spontaneously, provoke with the 360° turn.',
+   anc:[[0,'Normal','No freezing observed at any point'],[1,'Slight','Single brief hesitation ≤1 sec at start or turn'],[2,'Mild','Occasional freezing episode(s) >1 sec; recovers without falling'],[3,'Moderate','Frequent freezing; multiple episodes per walk'],[4,'Severe','Falls due to freezing; nearly every step affected']]},
+
+  {id:'3.13',phase:4,ph:'Standing & Gait',name:'Posture',bi:false,
+   say:'Stand naturally with your arms at your sides and look straight ahead for me.',
+   admin:'Assess while patient is standing naturally after gait. View from the side AND from behind. Look for stooping, Pisa syndrome (lateral lean), and kyphosis.',
+   anc:[[0,'Normal','Upright, normal posture'],[1,'Slight','Slight stooping; could be normal for age'],[2,'Mild','Definite stooping, kyphosis, or lean to one side'],[3,'Moderate','Severe stooping or marked lateral flexion (Pisa syndrome)'],[4,'Severe','Fixed, severely abnormal posture']]},
+
+  {id:'3.12',phase:4,ph:'Standing & Gait',name:'Postural Stability (Pull Test)',bi:false,
+   say:'I am going to stand behind you and give you a quick tug backward by your shoulders to test your balance. Try to stay on your feet — take as many steps as you need to catch yourself. I am right here and will not let you fall.',
+   admin:'⚠ SAFETY FIRST. Stand directly behind with arms ready. Warn the patient clearly. Must be prepared to catch. Repeat up to 3× if result is ambiguous.',
+   anc:[[0,'Normal','Recovers with 1–2 steps'],[1,'Slight','Recovers with 3–5 steps but independently'],[2,'Mild','>5 steps but recovers independently'],[3,'Moderate','Tends to fall; no step attempt OR would fall if not caught'],[4,'Severe','Very unstable; tends to fall spontaneously without pull']]},
+
+  {id:'3.14',phase:5,ph:'Global Observation',name:'Global Spontaneity of Movement',bi:false,
+   say:null,
+   admin:'Holistic score based on the ENTIRE examination. Did the patient swing their arms while walking? Shift naturally in their chair? Use gestures during speech? This score synthesizes slowness and poverty of movement globally.',
+   anc:[[0,'Normal','Normal spontaneous movement throughout'],[1,'Slight','Slightly decreased spontaneity; subtle slowness'],[2,'Mild','Mildly decreased; noticeable slowness and poverty of gesture'],[3,'Moderate','Moderately decreased; significant slowness in all movement'],[4,'Severe','Complete or near-complete lack of spontaneous movement']]},
+
+  {id:'3.15',phase:6,ph:'Tremor',name:'Rest Tremor Amplitude',bi:true,
+   say:'Place your hands on your lap, close your eyes, and relax for a moment. Let your feet rest flat on the floor.',
+   admin:'Observe ≥10 seconds. Score face, both hands, and both feet separately. A mental task (counting backwards) can reveal latent rest tremor.',
+   anc:[[0,'Absent','No rest tremor'],[1,'Slight','<1 cm amplitude'],[2,'Mild','1–3 cm amplitude'],[3,'Moderate','>3–10 cm amplitude'],[4,'Severe','>10 cm amplitude']]},
+
+  {id:'3.16',phase:6,ph:'Tremor',name:'Action / Postural Tremor',bi:true,
+   say:'[POSTURAL] Hold your arms straight out in front of you, palms down, for about 10 seconds. [KINETIC] Now touch your nose with your index finger, then touch my finger — keep going back and forth.',
+   admin:'Re-emergent tremor appearing after a >10-second delay during the postural hold is a REST tremor — score it under 3.15, not here.',
+   anc:[[0,'Absent','No action or postural tremor'],[1,'Slight','<1 cm amplitude'],[2,'Mild','1–3 cm amplitude'],[3,'Moderate','>3–10 cm amplitude'],[4,'Severe','>10 cm amplitude']]},
+
+  {id:'3.17',phase:6,ph:'Tremor',name:'Rest Tremor Constancy',bi:false,
+   say:null,
+   admin:'Score based on total observation time across the ENTIRE examination, all body parts.',
+   anc:[[0,'Never','No rest tremor observed at any point'],[1,'Occasional','Present ≤25% of observation time'],[2,'Sometimes','Present 26–50% of observation time'],[3,'Frequent','Present 51–75% of observation time'],[4,'Constant','Present >75% of observation time']]},
+
+  {id:'3.18',phase:6,ph:'Tremor',name:'Constancy of Rest Tremor',bi:false,
+   say:null,
+   admin:'Documents persistence of rest tremor across position changes. Score only if tremor was observed at some point.',
+   anc:[[0,'Never','No rest tremor at any time'],[1,'Occasional','Present ≤25% of exam'],[2,'Sometimes','Present 26–50% of exam'],[3,'Frequent','Present 51–75% of exam'],[4,'Constant','Present >75% of exam']]}
 ];
 
-// Scores storage: { '3.1': 2, '3.3_L': 1, '3.3_R': 0, ... }
+// ── STATE ──────────────────────────────────────────────────
 let scores = {};
-let notes = {};
-let currentView = 'welcome'; // 'welcome' | 'item-3.1' | ... | 'summary'
-let anchorsOpen = {};
+let itemNotes = {};
+let curView = 'welcome';
+let ancOpen = {};
 
-// ===== SCORE HELPERS =====
-function getItemScore(item) {
-  if (item.bilateral) {
-    const L = scores[item.id + '_L'];
-    const R = scores[item.id + '_R'];
-    if (L === undefined && R === undefined) return null;
-    return (L !== undefined ? L : 0) + (R !== undefined ? R : 0);
+// ── HELPERS ────────────────────────────────────────────────
+function isScored(item){
+  if(item.bi) return scores[item.id+'_L']!==undefined && scores[item.id+'_R']!==undefined;
+  return scores[item.id]!==undefined;
+}
+function itemTotal(item){
+  if(item.bi){
+    const L=scores[item.id+'_L'],R=scores[item.id+'_R'];
+    if(L===undefined||R===undefined) return null;
+    return L+R;
   }
-  return scores[item.id] !== undefined ? scores[item.id] : null;
+  return scores[item.id]!==undefined ? scores[item.id] : null;
 }
+function totalScore(){ return ITEMS.reduce((s,i)=>{const t=itemTotal(i);return s+(t!==null?t:0);},0); }
+function scoredCount(){ return ITEMS.filter(isScored).length; }
 
-function isItemScored(item) {
-  if (item.bilateral) return scores[item.id + '_L'] !== undefined && scores[item.id + '_R'] !== undefined;
-  return scores[item.id] !== undefined;
-}
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-function getTotalScore() {
-  return ITEMS.reduce((t, item) => {
-    const s = getItemScore(item);
-    return t + (s !== null ? s : 0);
-  }, 0);
-}
-
-function getScoredCount() {
-  return ITEMS.filter(isItemScored).length;
-}
-
-// ===== UI UPDATES =====
-function updateProgress() {
-  const n = getScoredCount();
-  const total = ITEMS.length;
-  const pct = Math.round(n / total * 100);
-  document.getElementById('progressBar').style.width = pct + '%';
-  document.getElementById('progressText').textContent = `${n} / ${total} items scored`;
-  const ts = getTotalScore();
-  document.getElementById('sidebarTotal').textContent = n > 0 ? ts : '—';
-}
-
-function buildNav() {
-  const nav = document.getElementById('navSection');
-  nav.innerHTML = '';
-
-  // Welcome
-  const welcomeEl = document.createElement('div');
-  welcomeEl.className = 'nav-item' + (currentView === 'welcome' ? ' active' : '');
-  welcomeEl.innerHTML = `<div class="nav-dot"></div><div style="flex:1"><div class="nav-item-text">Overview</div></div>`;
-  welcomeEl.onclick = () => showView('welcome');
-  nav.appendChild(welcomeEl);
-
-  let lastPhase = null;
-  ITEMS.forEach(item => {
-    if (item.phase !== lastPhase) {
-      const label = document.createElement('div');
-      label.className = 'nav-phase-label';
-      label.textContent = `Phase ${item.phase} · ${item.phaseName}`;
-      nav.appendChild(label);
-      lastPhase = item.phase;
+// ── NAV ────────────────────────────────────────────────────
+function buildNav(){
+  let h='';
+  h+=navRow('welcome','','Overview',curView==='welcome',false);
+  let lastPhase=null;
+  ITEMS.forEach(item=>{
+    if(item.phase!==lastPhase){
+      h+=`<div class="nav-phase">Phase ${item.phase} · ${item.ph}</div>`;
+      lastPhase=item.phase;
     }
-    const el = document.createElement('div');
-    const isActive = currentView === 'item-' + item.id;
-    const isScored = isItemScored(item);
-    el.className = 'nav-item' + (isActive ? ' active' : '') + (isScored ? ' completed' : '');
-    el.innerHTML = `
-      <div class="nav-dot"></div>
-      <div style="flex:1">
-        <div class="nav-item-code">${item.id}</div>
-        <div class="nav-item-text">${item.name}</div>
-      </div>
-    `;
-    el.onclick = () => showView('item-' + item.id);
-    nav.appendChild(el);
+    h+=navRow('item-'+item.id,item.id,item.name,curView==='item-'+item.id,isScored(item));
   });
-
-  // Summary
-  const summEl = document.createElement('div');
-  summEl.className = 'nav-item' + (currentView === 'summary' ? ' active' : '');
-  summEl.innerHTML = `<div class="nav-dot"></div><div style="flex:1"><div class="nav-item-text">📋 Review & Export</div></div>`;
-  summEl.onclick = () => showView('summary');
-  nav.appendChild(summEl);
+  h+=navRow('summary','','📋 Review & Export',curView==='summary',false);
+  document.getElementById('nav').innerHTML=h;
+}
+function navRow(view,code,name,active,done){
+  const cls='nav-item'+(active?' active':'')+(done?' done':'');
+  return `<div class="${cls}" onclick="go('${view}')">
+    <div class="nav-dot"></div>
+    <div>${code?`<div class="nav-code">${code}</div>`:''}
+    <div class="nav-name">${name}</div></div>
+  </div>`;
+}
+function updateStats(){
+  const n=scoredCount(),ts=totalScore(),pct=Math.round(n/ITEMS.length*100);
+  document.getElementById('progBar').style.width=pct+'%';
+  document.getElementById('progCount').textContent=n+' / '+ITEMS.length+' scored';
+  document.getElementById('sbTotal').textContent=n>0?ts:'—';
 }
 
-// ===== VIEWS =====
-function showView(viewId) {
-  currentView = viewId;
+// ── ROUTING ────────────────────────────────────────────────
+function go(view){
+  curView=view;
   buildNav();
+  updateStats();
+  const el=document.getElementById('content');
+  el.innerHTML='';
+  el.className='fade';
+  setTimeout(()=>el.classList.remove('fade'),300);
 
-  const content = document.getElementById('mainContent');
-  content.innerHTML = '';
-  content.classList.add('fade-in');
-  setTimeout(() => content.classList.remove('fade-in'), 300);
-
-  if (viewId === 'welcome') {
-    document.getElementById('topPhaseBadge').textContent = 'Overview';
-    document.getElementById('topItemTitle').textContent = 'MDS-UPDRS Part III Scorer';
-    content.appendChild(renderWelcome());
-  } else if (viewId === 'summary') {
-    document.getElementById('topPhaseBadge').textContent = 'Review';
-    document.getElementById('topItemTitle').textContent = 'Score Summary & Export';
-    content.appendChild(renderSummary());
-  } else if (viewId.startsWith('item-')) {
-    const itemId = viewId.replace('item-', '');
-    const item = ITEMS.find(i => i.id === itemId);
-    if (item) {
-      document.getElementById('topPhaseBadge').textContent = `Phase ${item.phase} · ${item.phaseName}`;
-      document.getElementById('topItemTitle').textContent = item.id + ' · ' + item.name;
-      content.appendChild(renderItem(item));
-    }
+  if(view==='welcome'){
+    document.getElementById('topBadge').textContent='Overview';
+    document.getElementById('topTitle').textContent='MDS-UPDRS Part III Scorer';
+    el.innerHTML=welcomeHTML();
+  } else if(view==='summary'){
+    document.getElementById('topBadge').textContent='Review';
+    document.getElementById('topTitle').textContent='Score Summary & Export';
+    el.innerHTML=summaryHTML();
+    bindSummary();
+  } else if(view.startsWith('item-')){
+    const id=view.replace('item-','');
+    const item=ITEMS.find(i=>i.id===id);
+    if(!item) return;
+    document.getElementById('topBadge').textContent=`Phase ${item.phase} · ${item.ph}`;
+    document.getElementById('topTitle').textContent=item.id+' · '+item.name;
+    el.innerHTML=itemHTML(item);
+    bindItem(item);
   }
-  updateProgress();
 }
 
-function renderWelcome() {
-  const div = document.createElement('div');
-  div.className = 'welcome';
-  const meds = document.getElementById('metaMeds').value;
-  const medsChip = meds ? `<span class="${meds === 'ON' ? 'chip-on' : 'chip-off'}">${meds}</span>` : '';
-
-  div.innerHTML = `
-    <div class="welcome-hero">
-      <div class="welcome-eyebrow">Motor Examination · Administration Guide</div>
-      <div class="welcome-title">MDS-UPDRS Part III Scorer</div>
-      <div class="welcome-desc">Follow the optimal flow below to administer the exam efficiently, minimizing patient repositioning. Score each item as you go. All scores can be reviewed and edited before export. ${medsChip}</div>
-      <div class="welcome-scale">
-        <div class="scale-item"><div class="scale-num" style="color:#4ade80">0</div><div class="scale-lbl">Normal</div></div>
-        <div class="scale-item"><div class="scale-num" style="color:#fbbf24">1</div><div class="scale-lbl">Slight</div></div>
-        <div class="scale-item"><div class="scale-num" style="color:#fb923c">2</div><div class="scale-lbl">Mild</div></div>
-        <div class="scale-item"><div class="scale-num" style="color:#f87171">3</div><div class="scale-lbl">Moderate</div></div>
-        <div class="scale-item"><div class="scale-num" style="color:#ef4444">4</div><div class="scale-lbl">Severe</div></div>
-      </div>
+// ── WELCOME ────────────────────────────────────────────────
+function welcomeHTML(){
+  return `<div class="welcome">
+  <div class="hero">
+    <div class="hero-eye">Motor Examination · Administration Guide</div>
+    <div class="hero-h">MDS-UPDRS Part III Scorer</div>
+    <div class="hero-p">Follow the optimal exam flow below, scoring each item as you go. All scores can be reviewed and edited before export. Fill in patient details in the sidebar before starting.</div>
+    <div class="scale-strip">
+      <div class="sc-item"><div class="sc-n" style="color:#4ade80">0</div><div class="sc-l">Normal</div></div>
+      <div class="sc-item"><div class="sc-n" style="color:#fbbf24">1</div><div class="sc-l">Slight</div></div>
+      <div class="sc-item"><div class="sc-n" style="color:#fb923c">2</div><div class="sc-l">Mild</div></div>
+      <div class="sc-item"><div class="sc-n" style="color:#f87171">3</div><div class="sc-l">Moderate</div></div>
+      <div class="sc-item"><div class="sc-n" style="color:#ef4444">4</div><div class="sc-l">Severe</div></div>
     </div>
-    <div class="opening-box">
-      <div class="opening-label">📋 Opening Instruction to Patient</div>
-      <div class="opening-text">"I am going to ask you to perform several movements — some will involve your hands, some your legs, and some your balance. Please follow my instructions and try to perform the movements as quickly and as largely as possible unless I tell you otherwise."</div>
-    </div>
-    <div class="phase-overview">
-      <div class="phase-card"><div class="phase-num-box">1</div><div><div class="phase-card-title">Observation & Speech</div><div class="phase-card-sub">3.1 Speech · 3.2 Facial Expression</div></div></div>
-      <div class="phase-card"><div class="phase-num-box">2</div><div><div class="phase-card-title">Rigidity</div><div class="phase-card-sub">3.3 Rigidity (bilateral)</div></div></div>
-      <div class="phase-card"><div class="phase-num-box">3</div><div><div class="phase-card-title">Motor Tasks (Sitting)</div><div class="phase-card-sub">3.4–3.8 Tapping, Movements, Agility</div></div></div>
-      <div class="phase-card"><div class="phase-num-box">4</div><div><div class="phase-card-title">Standing & Gait</div><div class="phase-card-sub">3.9–3.13 Gait, Pull Test, Posture</div></div></div>
-      <div class="phase-card"><div class="phase-num-box">5</div><div><div class="phase-card-title">Global Observation</div><div class="phase-card-sub">3.14 Body Bradykinesia</div></div></div>
-      <div class="phase-card"><div class="phase-num-box">6</div><div><div class="phase-card-title">Tremor (re-seated)</div><div class="phase-card-sub">3.15–3.18 Rest, Postural, Kinetic</div></div></div>
-    </div>
-    <button class="btn btn-primary" style="width:100%;justify-content:center;padding:14px" onclick="showView('item-3.1')">Begin Examination →</button>
-  `;
-  return div;
+  </div>
+  <div class="opening-box">
+    <div class="opening-lbl">📋 Opening Instruction to Patient</div>
+    <div class="opening-txt">"I am going to ask you to perform several movements — some will involve your hands, some your legs, and some your balance. Please follow my instructions and try to perform the movements as quickly and as largely as possible unless I tell you otherwise."</div>
+  </div>
+  <div class="phase-grid">
+    <div class="ph-card"><div class="ph-num">1</div><div><div class="ph-title">Observation & Speech</div><div class="ph-sub">3.1 Speech · 3.2 Facial Expression</div></div></div>
+    <div class="ph-card"><div class="ph-num">2</div><div><div class="ph-title">Rigidity</div><div class="ph-sub">3.3 Rigidity (bilateral)</div></div></div>
+    <div class="ph-card"><div class="ph-num">3</div><div><div class="ph-title">Motor Tasks — Sitting</div><div class="ph-sub">3.4–3.8 Tapping, Movements, Agility</div></div></div>
+    <div class="ph-card"><div class="ph-num">4</div><div><div class="ph-title">Standing & Gait</div><div class="ph-sub">3.9–3.13 Gait, Pull Test, Posture</div></div></div>
+    <div class="ph-card"><div class="ph-num">5</div><div><div class="ph-title">Global Observation</div><div class="ph-sub">3.14 Body Bradykinesia</div></div></div>
+    <div class="ph-card"><div class="ph-num">6</div><div><div class="ph-title">Tremor — Re-seated</div><div class="ph-sub">3.15–3.18 Rest, Postural, Kinetic</div></div></div>
+  </div>
+  <button class="start-btn" onclick="go('item-3.1')">Begin Examination →</button>
+</div>`;
 }
 
-function renderItem(item) {
-  const wrapper = document.createElement('div');
+// ── ITEM ───────────────────────────────────────────────────
+function scoreRowHTML(key){
+  const cur=scores[key];
+  const lbls=['Normal','Slight','Mild','Moderate','Severe'];
+  return '<div class="score-row">'+[0,1,2,3,4].map(v=>{
+    const sel=cur===v?`sel-${v}`:'';
+    return `<button class="s-btn ${sel}" data-key="${key}" data-val="${v}"><div class="s-n">${v}</div><div class="s-l">${lbls[v]}</div></button>`;
+  }).join('')+'</div>';
+}
 
-  // Item card
-  const card = document.createElement('div');
-  const isScored = isItemScored(item);
-  card.className = 'item-card' + (item.bilateral ? ' bilateral' : '') + (isScored ? ' scored' : '');
+function anchorTableHTML(item){
+  if(!ancOpen[item.id]) return '';
+  const rows=item.anc.map(([n,lbl,desc])=>
+    `<tr><td><span class="a-n a${n}">${n}</span></td><td><span class="a-lbl">${lbl}</span></td><td>${esc(desc)}</td></tr>`
+  ).join('');
+  return `<div><table class="anc-table"><thead><tr><th>Score</th><th>Label</th><th>Description</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
 
-  // Header
-  let scorePreviewHTML = '';
-  if (item.bilateral) {
-    const L = scores[item.id + '_L'];
-    const R = scores[item.id + '_R'];
-    scorePreviewHTML = `
-      <div class="score-chip ${L !== undefined ? 'set' : ''}">L: ${L !== undefined ? L : '—'}</div>
-      <div class="score-chip ${R !== undefined ? 'set' : ''}">R: ${R !== undefined ? R : '—'}</div>
-    `;
+function itemHTML(item){
+  const idx=ITEMS.findIndex(i=>i.id===item.id);
+  const prev=idx>0?ITEMS[idx-1]:null;
+  const next=idx<ITEMS.length-1?ITEMS[idx+1]:null;
+  const scored=isScored(item);
+
+  let previewChips='';
+  if(item.bi){
+    const L=scores[item.id+'_L'],R=scores[item.id+'_R'];
+    previewChips=`<div class="chip ${L!==undefined?'set':''}">L: ${L!==undefined?L:'—'}</div>
+                  <div class="chip ${R!==undefined?'set':''}">R: ${R!==undefined?R:'—'}</div>`;
   } else {
-    const s = scores[item.id];
-    scorePreviewHTML = `<div class="score-chip ${s !== undefined ? 'set' : ''}">${s !== undefined ? s : '—'}</div>`;
+    const s=scores[item.id];
+    previewChips=`<div class="chip ${s!==undefined?'set':''}">${s!==undefined?s:'—'}</div>`;
   }
 
-  card.innerHTML = `
-    <div class="item-header">
-      <div class="item-code-box">${item.id}</div>
-      <div class="item-title-area">
-        <div class="item-name">${item.name}</div>
-        ${item.bilateral ? '<span class="bilateral-tag">Score Left & Right separately</span>' : '<div class="item-subtitle">Single score</div>'}
-      </div>
-      <div class="item-score-preview">${scorePreviewHTML}</div>
+  let scoringHTML='';
+  if(item.bi){
+    scoringHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:4px;">
+      <div><div class="sec-lbl lbl-l">◀ LEFT</div>${scoreRowHTML(item.id+'_L')}</div>
+      <div><div class="sec-lbl lbl-r">▶ RIGHT</div>${scoreRowHTML(item.id+'_R')}</div>
+    </div>`;
+  } else {
+    scoringHTML=`<div class="sec-lbl lbl-s">Score</div>${scoreRowHTML(item.id)}`;
+  }
+
+  const cardCls='item-card'+(item.bi?' bi-card':'')+(scored?' scored-card':'');
+  const ancLabel=ancOpen[item.id]?'▲ Hide grading anchors':'▼ Show grading anchors';
+
+  return `<div class="${cardCls}">
+  <div class="ic-head">
+    <div class="ic-code">${item.id}</div>
+    <div class="ic-title">
+      <div class="ic-name">${item.name}</div>
+      ${item.bi?'<span class="bi-tag">Score Left &amp; Right separately</span>':'<div class="ic-sub">Single score</div>'}
     </div>
-    <div class="item-body" id="itemBody-${item.id}"></div>
-  `;
+    <div class="ic-chips">${previewChips}</div>
+  </div>
+  <div class="ic-body">
+    <div class="admin-box">ℹ ${esc(item.admin)}</div>
+    ${item.say?`<div class="say-box"><div class="say-lbl">Say to patient</div><div class="say-text">"${esc(item.say)}"</div></div>`:''}
+    ${scoringHTML}
+    <button class="anc-toggle" id="ancBtn">${ancLabel}</button>
+    <div id="ancWrap">${anchorTableHTML(item)}</div>
+    <div style="margin-top:12px;">
+      <div style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px;">Notes</div>
+      <textarea class="note-inp" id="noteArea" rows="2" placeholder="Optional notes for this item…">${esc(itemNotes[item.id]||'')}</textarea>
+    </div>
+  </div>
+</div>
+<div class="nav-btns">
+  <button class="nav-btn nav-btn-p" onclick="go('${prev?'item-'+prev.id:'welcome'}')">← ${prev?prev.id+' · '+prev.name:'Overview'}</button>
+  <button class="nav-btn nav-btn-n" onclick="go('${next?'item-'+next.id:'summary'}')">${next?next.id+' · '+next.name+' →':'📋 Review & Export →'}</button>
+</div>`;
+}
 
-  const body = card.querySelector(`#itemBody-${item.id}`);
-
-  // Admin note
-  if (item.admin) {
-    const n = document.createElement('div');
-    n.className = 'admin-note';
-    n.innerHTML = `<span class="admin-icon">ℹ</span><span>${item.admin}</span>`;
-    body.appendChild(n);
-  }
-
-  // Say box
-  if (item.say) {
-    const s = document.createElement('div');
-    s.className = 'say-box';
-    s.innerHTML = `<div class="say-label">Say to patient</div><div class="say-text">"${item.say}"</div>`;
-    body.appendChild(s);
-  }
-
-  // Scoring
-  if (item.bilateral) {
-    const bg = document.createElement('div');
-    bg.className = 'bilateral-scoring';
-
-    ['L', 'R'].forEach(side => {
-      const col = document.createElement('div');
-      const sideLabel = document.createElement('div');
-      sideLabel.className = `side-label ${side === 'L' ? 'left' : 'right'}`;
-      sideLabel.textContent = side === 'L' ? '◀ LEFT' : '▶ RIGHT';
-      col.appendChild(sideLabel);
-      col.appendChild(buildScoreGrid(item.id + '_' + side, item, card));
-      bg.appendChild(col);
+function bindItem(item){
+  // Score buttons — direct onclick, no re-render loop
+  document.querySelectorAll('.s-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const key=btn.dataset.key, val=parseInt(btn.dataset.val);
+      scores[key]=val;
+      // Update button styles in place without full re-render
+      const row=btn.closest('.score-row');
+      row.querySelectorAll('.s-btn').forEach((b,i)=>{
+        b.className='s-btn'+(i===val?` sel-${val}`:'');
+      });
+      // Update preview chips
+      updateChips(item);
+      // Update card border
+      const card=document.querySelector('.item-card');
+      if(isScored(item)){card.classList.add('scored-card');}
+      updateStats();
+      buildNav();
     });
-    body.appendChild(bg);
-  } else {
-    body.appendChild(buildScoreGrid(item.id, item, card));
-  }
-
-  // Grading anchors
-  const anchorKey = item.id;
-  const toggle = document.createElement('a');
-  toggle.className = 'anchors-toggle';
-  toggle.textContent = anchorsOpen[anchorKey] ? '▲ Hide grading anchors' : '▼ Show grading anchors';
-  toggle.onclick = () => {
-    anchorsOpen[anchorKey] = !anchorsOpen[anchorKey];
-    toggle.textContent = anchorsOpen[anchorKey] ? '▲ Hide grading anchors' : '▼ Show grading anchors';
-    const table = body.querySelector('.anchors-table');
-    table.classList.toggle('open', anchorsOpen[anchorKey]);
-  };
-  body.appendChild(toggle);
-
-  const table = document.createElement('table');
-  table.className = 'anchors-table' + (anchorsOpen[anchorKey] ? ' open' : '');
-  table.innerHTML = `<thead><tr><th style="width:40px">Score</th><th style="width:90px">Label</th><th>Description</th></tr></thead>`;
-  const tbody = document.createElement('tbody');
-  item.anchors.forEach(([s, lbl, desc]) => {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `<td><span class="anchor-score anchor-${s}">${s}</span></td><td style="font-weight:600;font-size:12px">${lbl}</td><td style="color:#475569">${desc}</td>`;
-    tbody.appendChild(tr);
   });
-  table.appendChild(tbody);
-  body.appendChild(table);
+
+  // Anchor toggle
+  document.getElementById('ancBtn').addEventListener('click',()=>{
+    ancOpen[item.id]=!ancOpen[item.id];
+    document.getElementById('ancBtn').textContent=ancOpen[item.id]?'▲ Hide grading anchors':'▼ Show grading anchors';
+    document.getElementById('ancWrap').innerHTML=anchorTableHTML(item);
+  });
 
   // Notes
-  const notesRow = document.createElement('div');
-  notesRow.className = 'notes-row';
-  const notesInp = document.createElement('textarea');
-  notesInp.className = 'notes-input';
-  notesInp.rows = 2;
-  notesInp.placeholder = 'Notes for this item (optional)…';
-  notesInp.value = notes[item.id] || '';
-  notesInp.oninput = () => { notes[item.id] = notesInp.value; };
-  notesRow.appendChild(notesInp);
-  body.appendChild(notesRow);
-
-  wrapper.appendChild(card);
-
-  // Nav buttons
-  const idx = ITEMS.findIndex(i => i.id === item.id);
-  const prev = idx > 0 ? ITEMS[idx - 1] : null;
-  const next = idx < ITEMS.length - 1 ? ITEMS[idx + 1] : null;
-
-  const navBtns = document.createElement('div');
-  navBtns.className = 'nav-btns';
-  navBtns.innerHTML = `
-    <button class="btn btn-outline" onclick="${prev ? `showView('item-${prev.id}')` : `showView('welcome')`}">
-      ← ${prev ? prev.id + ' · ' + prev.name : 'Overview'}
-    </button>
-    <button class="btn btn-primary" onclick="${next ? `showView('item-${next.id}')` : `showView('summary')`}">
-      ${next ? next.id + ' · ' + next.name + ' →' : '📋 Review & Export →'}
-    </button>
-  `;
-  wrapper.appendChild(navBtns);
-
-  return wrapper;
-}
-
-function buildScoreGrid(key, item, cardEl) {
-  const grid = document.createElement('div');
-  grid.className = 'scoring-grid';
-  const labels = ['Normal', 'Slight', 'Mild', 'Moderate', 'Severe'];
-  [0, 1, 2, 3, 4].forEach(s => {
-    const btn = document.createElement('button');
-    btn.className = 'score-btn' + (scores[key] === s ? ` selected-${s}` : '');
-    btn.innerHTML = `<div class="s-num">${s}</div><div class="s-lbl">${labels[s]}</div>`;
-    btn.onclick = () => {
-      scores[key] = s;
-      // Refresh the card
-      const newCard = renderItem(item);
-      cardEl.replaceWith(newCard.firstChild);
-      updateProgress();
-      buildNav();
-    };
-    grid.appendChild(btn);
+  document.getElementById('noteArea').addEventListener('input',e=>{
+    itemNotes[item.id]=e.target.value;
   });
-  return grid;
 }
 
-function renderSummary() {
-  const div = document.createElement('div');
-  const scored = getScoredCount();
-  const total = ITEMS.length;
-  const ts = getTotalScore();
+function updateChips(item){
+  const chips=document.querySelector('.ic-chips');
+  if(!chips) return;
+  if(item.bi){
+    const L=scores[item.id+'_L'],R=scores[item.id+'_R'];
+    chips.innerHTML=`<div class="chip ${L!==undefined?'set':''}">L: ${L!==undefined?L:'—'}</div>
+                     <div class="chip ${R!==undefined?'set':''}">R: ${R!==undefined?R:'—'}</div>`;
+  } else {
+    const s=scores[item.id];
+    chips.innerHTML=`<div class="chip ${s!==undefined?'set':''}">${s!==undefined?s:'—'}</div>`;
+  }
+}
 
-  // Stats row
-  div.innerHTML = `
-    <div class="summary-grid" style="margin-bottom:20px">
-      <div class="summary-card">
-        <div class="summary-card-label">Total Score</div>
-        <div class="summary-card-val" id="sumTotal">${ts}</div>
-        <div class="summary-card-sub">out of ${ITEMS.reduce((a,i) => a + (i.bilateral ? 8 : 4), 0)} max</div>
-      </div>
-      <div class="summary-card">
-        <div class="summary-card-label">Items Scored</div>
-        <div class="summary-card-val">${scored} / ${total}</div>
-        <div class="summary-card-sub">${total - scored} remaining</div>
-      </div>
-      <div class="summary-card">
-        <div class="summary-card-label">Patient ID</div>
-        <div class="summary-card-val" style="font-size:16px;margin-top:4px">${document.getElementById('metaPatient').value || '—'}</div>
-        <div class="summary-card-sub">Meds: ${document.getElementById('metaMeds').value || '—'}</div>
-      </div>
-      <div class="summary-card">
-        <div class="summary-card-label">Date / Time</div>
-        <div class="summary-card-val" style="font-size:16px;margin-top:4px">${new Date().toLocaleDateString()}</div>
-        <div class="summary-card-sub">${new Date().toLocaleTimeString()}</div>
-      </div>
-    </div>
-  `;
+// ── SUMMARY ────────────────────────────────────────────────
+function stTag(v){
+  if(v===undefined||v===null) return '<span class="stag stx">—</span>';
+  return `<span class="stag st${Math.min(4,v)}">${v}</span>`;
+}
 
-  const card = document.createElement('div');
-  card.className = 'card';
-  card.innerHTML = `
-    <div class="card-header">
-      <span class="card-title">Score Sheet — Click any score to edit</span>
-      <button class="btn btn-green btn-sm" onclick="exportExcel()">⬇ Export to Excel</button>
-    </div>
-  `;
-  const tbody = document.createElement('div');
-  tbody.style.overflowX = 'auto';
+function summaryHTML(){
+  const n=scoredCount(),ts=totalScore();
+  const patient=document.getElementById('mPatient').value||'—';
+  const examiner=document.getElementById('mExaminer').value||'—';
+  const meds=document.getElementById('mMeds').value||'—';
+  const rawDose=document.getElementById('mLastDose').value;
+  const lastDose=rawDose?new Date(rawDose).toLocaleString():'—';
+  const maxPts=ITEMS.reduce((a,i)=>a+(i.bi?8:4),0);
 
-  const table = document.createElement('table');
-  table.className = 'review-table';
-  table.style.width = '100%';
-  table.innerHTML = `
-    <thead><tr>
-      <th>Item</th>
-      <th>Name</th>
-      <th>Phase</th>
-      <th style="text-align:center">Left / Single</th>
-      <th style="text-align:center">Right</th>
-      <th style="text-align:center">Item Total</th>
-      <th>Notes</th>
-    </tr></thead>
-  `;
-  const tbodyEl = document.createElement('tbody');
-
-  ITEMS.forEach(item => {
-    const tr = document.createElement('tr');
-    const itemTotal = getItemScore(item);
-
-    if (item.bilateral) {
-      const L = scores[item.id + '_L'];
-      const R = scores[item.id + '_R'];
-
-      tr.innerHTML = `
+  const rows=ITEMS.map(item=>{
+    const t=itemTotal(item);
+    if(item.bi){
+      const L=scores[item.id+'_L'],R=scores[item.id+'_R'];
+      return `<tr>
         <td><strong style="font-family:'DM Mono',monospace">${item.id}</strong></td>
         <td>${item.name}</td>
-        <td style="color:var(--muted);font-size:12px">Phase ${item.phase}</td>
-        <td style="text-align:center">${editableScore(item.id + '_L', L, table, div)}</td>
-        <td style="text-align:center">${editableScore(item.id + '_R', R, table, div)}</td>
-        <td style="text-align:center">${itemTotal !== null ? `<span class="score-tag score-tag-${Math.min(4, itemTotal)}">${itemTotal}</span>` : '<span class="score-tag score-tag-x">—</span>'}</td>
-        <td><input class="notes-input" style="border-radius:6px" placeholder="notes…" value="${notes[item.id] || ''}" onchange="notes['${item.id}']=this.value"></td>
-      `;
+        <td style="color:var(--muted);font-size:12px">Ph.${item.phase}</td>
+        <td style="text-align:center"><input class="ed" data-key="${item.id}_L" type="number" min="0" max="4" value="${L!==undefined?L:''}" placeholder="—"></td>
+        <td style="text-align:center"><input class="ed" data-key="${item.id}_R" type="number" min="0" max="4" value="${R!==undefined?R:''}" placeholder="—"></td>
+        <td style="text-align:center" class="item-tot-cell" data-id="${item.id}">${stTag(t)}</td>
+        <td><input type="text" class="note-inp sum-note" style="height:32px;padding:4px 10px;" data-id="${item.id}" value="${esc(itemNotes[item.id]||'')}" placeholder="notes…"></td>
+      </tr>`;
     } else {
-      const s = scores[item.id];
-      tr.innerHTML = `
+      const s=scores[item.id];
+      return `<tr>
         <td><strong style="font-family:'DM Mono',monospace">${item.id}</strong></td>
         <td>${item.name}</td>
-        <td style="color:var(--muted);font-size:12px">Phase ${item.phase}</td>
-        <td style="text-align:center" colspan="2">${editableScore(item.id, s, table, div)}</td>
-        <td style="text-align:center">${s !== undefined ? `<span class="score-tag score-tag-${s}">${s}</span>` : '<span class="score-tag score-tag-x">—</span>'}</td>
-        <td><input class="notes-input" style="border-radius:6px" placeholder="notes…" value="${notes[item.id] || ''}" onchange="notes['${item.id}']=this.value"></td>
-      `;
+        <td style="color:var(--muted);font-size:12px">Ph.${item.phase}</td>
+        <td style="text-align:center" colspan="2"><input class="ed" data-key="${item.id}" type="number" min="0" max="4" value="${s!==undefined?s:''}" placeholder="—"></td>
+        <td style="text-align:center" class="item-tot-cell" data-id="${item.id}">${stTag(s)}</td>
+        <td><input type="text" class="note-inp sum-note" style="height:32px;padding:4px 10px;" data-id="${item.id}" value="${esc(itemNotes[item.id]||'')}" placeholder="notes…"></td>
+      </tr>`;
     }
-    tbodyEl.appendChild(tr);
+  }).join('');
+
+  return `
+  <div class="stat-grid">
+    <div class="stat-card"><div class="stat-lbl">Total Score</div><div class="stat-val" id="sumTot">${ts}</div><div class="stat-sub">out of ${maxPts} max</div></div>
+    <div class="stat-card"><div class="stat-lbl">Items Scored</div><div class="stat-val">${n}/${ITEMS.length}</div><div class="stat-sub">${ITEMS.length-n} remaining</div></div>
+    <div class="stat-card"><div class="stat-lbl">Patient / Examiner</div><div class="stat-val" style="font-size:15px;margin-top:5px">${esc(patient)}</div><div class="stat-sub">${esc(examiner)}</div></div>
+    <div class="stat-card"><div class="stat-lbl">Meds · Last Dose</div><div class="stat-val" style="font-size:15px;margin-top:5px">${esc(meds)}</div><div class="stat-sub">${esc(lastDose)}</div></div>
+  </div>
+  <div class="rev-card">
+    <div class="rev-head">
+      <span class="rev-title">Score Sheet — edit any value inline</span>
+      <button class="btn btn-green" onclick="exportExcel()">⬇ Export Excel</button>
+    </div>
+    <div class="rev-scroll">
+      <table class="rev-tbl">
+        <thead><tr><th>Item</th><th>Name</th><th>Phase</th><th style="text-align:center">Left/Single</th><th style="text-align:center">Right</th><th style="text-align:center">Total</th><th>Notes</th></tr></thead>
+        <tbody>${rows}</tbody>
+        <tfoot><tr class="tot-row">
+          <td colspan="5" style="text-align:right;font-size:14px;padding:11px 13px;">TOTAL SCORE</td>
+          <td style="text-align:center;padding:11px 13px"><span style="font-family:'DM Mono',monospace;font-size:20px" id="footTot">${ts}</span></td>
+          <td style="padding:11px 13px;opacity:.5">/ ${maxPts}</td>
+        </tr></tfoot>
+      </table>
+    </div>
+  </div>`;
+}
+
+function bindSummary(){
+  document.querySelectorAll('.ed').forEach(inp=>{
+    inp.addEventListener('change',()=>{
+      const key=inp.dataset.key, v=parseInt(inp.value);
+      if(!isNaN(v)&&v>=0&&v<=4){ scores[key]=v; } else { delete scores[key]; inp.value=''; }
+      // Update totals
+      const ts=totalScore();
+      const el1=document.getElementById('sumTot'), el2=document.getElementById('footTot');
+      if(el1) el1.textContent=ts; if(el2) el2.textContent=ts;
+      // Update item total cell
+      const itemId=key.replace(/_[LR]$/,'');
+      const item=ITEMS.find(i=>i.id===itemId);
+      if(item){
+        document.querySelectorAll(`.item-tot-cell[data-id="${itemId}"]`).forEach(cell=>{
+          cell.innerHTML=stTag(itemTotal(item));
+        });
+      }
+      updateStats(); buildNav();
+    });
   });
-
-  // Total row
-  const totalTr = document.createElement('tr');
-  totalTr.style.background = 'var(--navy)';
-  totalTr.innerHTML = `
-    <td colspan="5" style="padding:12px 14px;color:white;font-weight:700;font-size:14px;text-align:right">TOTAL SCORE</td>
-    <td style="text-align:center;padding:12px 14px"><span style="color:white;font-family:'DM Mono',monospace;font-size:20px;font-weight:700" id="summaryTotalScore">${ts}</span></td>
-    <td style="padding:12px 14px;color:var(--muted)">/ ${ITEMS.reduce((a,i) => a + (i.bilateral ? 8 : 4), 0)} max</td>
-  `;
-  tbodyEl.appendChild(totalTr);
-
-  table.appendChild(tbodyEl);
-  tbody.appendChild(table);
-  card.appendChild(tbody);
-  div.appendChild(card);
-
-  return div;
+  document.querySelectorAll('.sum-note').forEach(inp=>{
+    inp.addEventListener('input',()=>{ itemNotes[inp.dataset.id]=inp.value; });
+  });
 }
 
-function editableScore(key, currentVal, table, parentDiv) {
-  const val = currentVal !== undefined ? currentVal : '';
-  return `<input class="editable-score" type="number" min="0" max="4" value="${val}" placeholder="—" 
-    onchange="updateScoreFromTable('${key}', this.value, this)" 
-    onfocus="this.select()">`;
-}
+// ── EXPORT ────────────────────────────────────────────────
+function exportExcel(){
+  const wb=XLSX.utils.book_new();
+  const patient=document.getElementById('mPatient').value||'';
+  const examiner=document.getElementById('mExaminer').value||'';
+  const meds=document.getElementById('mMeds').value||'';
+  const rawDose=document.getElementById('mLastDose').value;
+  const lastDose=rawDose?new Date(rawDose).toLocaleString():'';
+  const maxPts=ITEMS.reduce((a,i)=>a+(i.bi?8:4),0);
 
-function updateScoreFromTable(key, val, el) {
-  const v = parseInt(val);
-  if (isNaN(v) || v < 0 || v > 4) { el.value = scores[key] !== undefined ? scores[key] : ''; return; }
-  scores[key] = v;
-  updateProgress();
-  buildNav();
-  // update total in summary
-  const totalEl = document.getElementById('summaryTotalScore');
-  if (totalEl) totalEl.textContent = getTotalScore();
-  const sumTotalEl = document.getElementById('sumTotal');
-  if (sumTotalEl) sumTotalEl.textContent = getTotalScore();
-}
-
-// ===== EXCEL EXPORT =====
-function exportExcel() {
-  const wb = XLSX.utils.book_new();
-
-  // Sheet 1: Scores
-  const scoresData = [
+  const data=[
     ['MDS-UPDRS Part III · Motor Examination'],
     [],
-    ['Patient ID', document.getElementById('metaPatient').value || ''],
-    ['Examiner', document.getElementById('metaExaminer').value || ''],
-    ['Medication Status', document.getElementById('metaMeds').value || ''],
-    ['Date', new Date().toLocaleDateString()],
-    ['Time', new Date().toLocaleTimeString()],
+    ['Patient ID',patient],['Examiner',examiner],
+    ['Date',new Date().toLocaleDateString()],['Time',new Date().toLocaleTimeString()],
+    ['Medication Status',meds],['Last Dose Taken At',lastDose],
     [],
-    ['Item', 'Name', 'Phase', 'Left / Single', 'Right', 'Item Total', 'Notes'],
+    ['Item','Name','Phase','Left / Single','Right','Item Total','Notes'],
   ];
-
-  ITEMS.forEach(item => {
-    if (item.bilateral) {
-      const L = scores[item.id + '_L'];
-      const R = scores[item.id + '_R'];
-      const tot = (L !== undefined ? L : 0) + (R !== undefined ? R : 0);
-      scoresData.push([
-        item.id, item.name, `Phase ${item.phase} · ${item.phaseName}`,
-        L !== undefined ? L : '',
-        R !== undefined ? R : '',
-        (L !== undefined && R !== undefined) ? tot : '',
-        notes[item.id] || ''
-      ]);
+  ITEMS.forEach(item=>{
+    if(item.bi){
+      const L=scores[item.id+'_L'],R=scores[item.id+'_R'];
+      data.push([item.id,item.name,`Ph.${item.phase} · ${item.ph}`,
+        L!==undefined?L:'',R!==undefined?R:'',
+        (L!==undefined&&R!==undefined)?L+R:'',itemNotes[item.id]||'']);
     } else {
-      const s = scores[item.id];
-      scoresData.push([
-        item.id, item.name, `Phase ${item.phase} · ${item.phaseName}`,
-        s !== undefined ? s : '', '', s !== undefined ? s : '',
-        notes[item.id] || ''
-      ]);
+      const s=scores[item.id];
+      data.push([item.id,item.name,`Ph.${item.phase} · ${item.ph}`,
+        s!==undefined?s:'','',s!==undefined?s:'',itemNotes[item.id]||'']);
     }
   });
+  data.push([],['TOTAL SCORE','','','','',totalScore(),`/ ${maxPts} max`]);
 
-  scoresData.push([]);
-  scoresData.push(['TOTAL SCORE', '', '', '', '', getTotalScore(), '']);
+  const ws1=XLSX.utils.aoa_to_sheet(data);
+  ws1['!cols']=[{wch:8},{wch:32},{wch:26},{wch:14},{wch:10},{wch:12},{wch:42}];
+  XLSX.utils.book_append_sheet(wb,ws1,'Scores');
 
-  const ws1 = XLSX.utils.aoa_to_sheet(scoresData);
-
-  // Column widths
-  ws1['!cols'] = [
-    { wch: 8 }, { wch: 30 }, { wch: 28 }, { wch: 14 }, { wch: 10 }, { wch: 12 }, { wch: 40 }
-  ];
-
-  XLSX.utils.book_append_sheet(wb, ws1, 'Scores');
-
-  // Sheet 2: Raw Data (one row per key)
-  const rawData = [['Key', 'Value', 'Item', 'Side']];
-  ITEMS.forEach(item => {
-    if (item.bilateral) {
-      ['L', 'R'].forEach(side => {
-        const k = item.id + '_' + side;
-        rawData.push([k, scores[k] !== undefined ? scores[k] : '', item.name, side]);
-      });
-    } else {
-      rawData.push([item.id, scores[item.id] !== undefined ? scores[item.id] : '', item.name, 'N/A']);
-    }
+  const raw=[['Key','Score','Item Name','Side']];
+  ITEMS.forEach(item=>{
+    if(item.bi){['L','R'].forEach(s=>raw.push([item.id+'_'+s,scores[item.id+'_'+s]!==undefined?scores[item.id+'_'+s]:'',item.name,s]));}
+    else{raw.push([item.id,scores[item.id]!==undefined?scores[item.id]:'',item.name,'N/A']);}
   });
-  rawData.push(['TOTAL', getTotalScore(), '', '']);
-  const ws2 = XLSX.utils.aoa_to_sheet(rawData);
-  ws2['!cols'] = [{ wch: 14 }, { wch: 8 }, { wch: 30 }, { wch: 8 }];
-  XLSX.utils.book_append_sheet(wb, ws2, 'Raw Data');
+  raw.push(['TOTAL',totalScore(),'','']);
+  const ws2=XLSX.utils.aoa_to_sheet(raw);
+  ws2['!cols']=[{wch:14},{wch:8},{wch:32},{wch:8}];
+  XLSX.utils.book_append_sheet(wb,ws2,'Raw Data');
 
-  const patient = document.getElementById('metaPatient').value || 'patient';
-  const date = new Date().toISOString().slice(0, 10);
-  XLSX.writeFile(wb, `UPDRS_III_${patient}_${date}.xlsx`);
+  XLSX.writeFile(wb,`UPDRS_III_${patient||'patient'}_${new Date().toISOString().slice(0,10)}.xlsx`);
 }
 
-// ===== INIT =====
-showView('welcome');
+// ── INIT ──────────────────────────────────────────────────
+go('welcome');
 </script>
 </body>
 </html>
