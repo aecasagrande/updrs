@@ -48,6 +48,7 @@ body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--nav
 .meta-inp, .meta-sel { width: 100%; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.15); border-radius: 8px; padding: 10px 12px; color: #fff; font-size: 14px; font-family: 'Inter', sans-serif; outline: none; }
 .meta-inp:focus, .meta-sel:focus { border-color: #60a5fa; background: rgba(255,255,255,.1); }
 .meta-sel option { background: #1e293b; color: #fff; }
+.meta-inp[type="datetime-local"] { color-scheme: dark; cursor: pointer; }
 
 /* MAIN AREA */
 #main { flex: 1; display: flex; flex-direction: column; min-width: 0; height: 100%; }
@@ -134,33 +135,23 @@ body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--nav
     </div>
   </div>
   <nav id="nav"></nav>
+  
   <div class="sb-meta">
     <label class="meta-lbl">Patient ID</label>
     <input class="meta-inp" id="mPatient" placeholder="e.g. Pt-1234">
+
+    <label class="meta-lbl">Researcher Name</label>
+    <input class="meta-inp" id="mResearcher" placeholder="e.g. Dr. Smith">
     
-    <label class="meta-lbl">3a. On PD Medication?</label>
-    <select class="meta-sel" id="mOnMed">
-      <option value="">Select...</option>
-      <option value="No">No</option>
-      <option value="Yes">Yes</option>
-    </select>
-
-    <label class="meta-lbl">3b. Clinical State (If Yes)</label>
+    <label class="meta-lbl">Medication State</label>
     <select class="meta-sel" id="mState">
-      <option value="N/A">N/A</option>
-      <option value="ON">ON (Typical functional state, good response)</option>
-      <option value="OFF">OFF (Poor response despite meds)</option>
-    </select>
-
-    <label class="meta-lbl">3c. On Levodopa?</label>
-    <select class="meta-sel" id="mOnLevo">
       <option value="">Select...</option>
-      <option value="No">No</option>
-      <option value="Yes">Yes</option>
+      <option value="ON">ON</option>
+      <option value="OFF">OFF</option>
     </select>
 
-    <label class="meta-lbl">3.C1. Minutes since last dose</label>
-    <input class="meta-inp" id="mMins" type="number" placeholder="Minutes">
+    <label class="meta-lbl">Last Dose Taken</label>
+    <input class="meta-inp" id="mLastDose" type="datetime-local" title="Select date and time">
   </div>
 </aside>
 
@@ -471,7 +462,7 @@ function renderSidebar() {
 function go(view) {
   curView = view;
   const el = document.getElementById('content');
-  el.scrollTop = 0; // instantly reset scroll, no animations
+  el.scrollTop = 0; 
 
   if(view === 'welcome') {
     document.getElementById('topBadge').innerText = 'Overview';
@@ -631,16 +622,21 @@ function getSummaryHTML() {
 function exportExcel() {
   const wb = XLSX.utils.book_new();
   const pt = document.getElementById('mPatient').value || 'Unknown';
+  const researcher = document.getElementById('mResearcher').value || 'Unknown';
+  const medState = document.getElementById('mState').value || 'N/A';
+  
+  const rawDose = document.getElementById('mLastDose').value;
+  // Format the date string properly if it exists
+  const lastDose = rawDose ? new Date(rawDose).toLocaleString() : 'N/A';
   
   const data = [
     ['MDS-UPDRS Part III: Motor Examination'], [],
     ['Patient ID', pt],
-    ['Date', new Date().toLocaleDateString()],
-    ['Time', new Date().toLocaleTimeString()],
-    ['On PD Meds?', document.getElementById('mOnMed').value],
-    ['Clinical State', document.getElementById('mState').value],
-    ['On Levodopa?', document.getElementById('mOnLevo').value],
-    ['Mins since last dose', document.getElementById('mMins').value],
+    ['Researcher Name', researcher],
+    ['Date Examined', new Date().toLocaleDateString()],
+    ['Time Examined', new Date().toLocaleTimeString()],
+    ['Medication State', medState],
+    ['Last Dose Taken', lastDose],
     [],
     ['Item', 'Name', 'Sub-Part', 'Score']
   ];
